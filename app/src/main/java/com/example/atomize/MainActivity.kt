@@ -9,10 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.example.atomize.ui.theme.AtomizeTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.atomize.ui.theme.AtomizeTheme
 import com.example.atomize.ui.theme.home.HomeFragment
 
 class MainActivity : ComponentActivity() {
@@ -34,18 +34,14 @@ class MainActivity : ComponentActivity() {
 fun AppNavigation(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize()
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = "home",
-            modifier = Modifier.padding(paddingValues = innerPadding),
-        ) {
-            // Defining Routes Section.
-            composable(route = "home") {
-                HomeFragment(navController)
-            }
+    NavHost(
+        navController = navController,
+        startDestination = "home",
+        modifier = modifier
+    ) {
+        // Defining Routes Section.
+        composable(route = "home") {
+            HomeFragment(navController)
         }
     }
 }
