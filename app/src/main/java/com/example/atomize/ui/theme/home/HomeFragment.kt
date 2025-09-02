@@ -2,6 +2,7 @@ package com.example.atomize.ui.theme.home
 
 import android.util.Log
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -21,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import com.example.atomize.R
-import com.example.atomize.ui.theme.*
 
 // Home (Screen) Fragment.
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,9 +30,9 @@ fun HomeFragment(navController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(id = R.string.app_name)) },
+                title = { Text(text = stringResource(R.string.app_name)) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DefaultAppBackgroundColor,
+                    containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = Color.White,
                     navigationIconContentColor = Color.White
                 ),
@@ -53,10 +53,12 @@ fun HomeFragment(navController: NavHostController) {
                 .padding(paddingValues = padding),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "Home Screen",
-                style = MaterialTheme.typography.headlineMedium
-            )
+            Column {
+                Text(
+                    text = "Home Screen",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            }
         }
     }
 }

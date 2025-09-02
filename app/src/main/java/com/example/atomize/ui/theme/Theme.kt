@@ -1,6 +1,5 @@
 package com.example.atomize.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -12,32 +11,71 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = LightGreen,
+    onPrimary = PrimaryTextColor,
+    primaryContainer = DarkGray,
+    onPrimaryContainer = VeryLightGreen,
+
+    secondary = VeryLightGreen,
+    onSecondary = PrimaryTextColor,
+    secondaryContainer = DarkGray,
+    onSecondaryContainer = VeryLightGreen,
+
+    tertiary = Orange,
+    onTertiary = PrimaryTextColor,
+    tertiaryContainer = DarkGray,
+    onTertiaryContainer = Orange,
+
+    background = PrimaryTextColor,
+    onBackground = White,
+
+    surface = DarkGray,
+    onSurface = White,
+    surfaceVariant = MediumGray,
+    onSurfaceVariant = LightGray,
+
+    error = Red,
+    onError = White,
+
+    outline = MediumGray,
+    outlineVariant = SecondaryTextColor
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = PrimaryGreen,
+    onPrimary = White,
+    primaryContainer = VeryLightGreen,
+    onPrimaryContainer = PrimaryTextColor,
 
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    secondary = LightGreen,
+    onSecondary = White,
+    secondaryContainer = LightGray,
+    onSecondaryContainer = PrimaryTextColor,
+
+    tertiary = Orange,
+    onTertiary = White,
+    tertiaryContainer = VeryLightGreen,
+    onTertiaryContainer = Orange,
+
+    background = LightGray,
+    onBackground = PrimaryTextColor,
+
+    surface = White,
+    onSurface = PrimaryTextColor,
+    surfaceVariant = VeryLightGreen,
+    onSurfaceVariant = SecondaryTextColor,
+
+    error = Red,
+    onError = White,
+
+    outline = MediumGray,
+    outlineVariant = DisabledTextColor
 )
 
 @Composable
 fun AtomizeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
