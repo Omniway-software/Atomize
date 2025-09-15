@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             AtomizeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    AppNavigation(modifier = Modifier.padding(paddingValues = innerPadding))
+                     AppNavigation(modifier = Modifier.padding(paddingValues = innerPadding))
                 }
             }
         }
