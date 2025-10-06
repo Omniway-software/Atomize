@@ -1,6 +1,7 @@
 package com.example.atomize.ui.theme.home
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,30 +31,45 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.atomize.R
 import com.example.atomize.model.Habit
+import com.example.atomize.ui.theme.*
 import com.example.atomize.viewmodel.HabitViewModel
 import java.time.LocalDate
 import java.time.YearMonth
@@ -61,6 +78,7 @@ import java.time.YearMonth
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeFragment(navController: NavHostController) {
+    var showDialog by remember { mutableStateOf(value = false) }
 
     // TopAppBar
     Column(modifier = Modifier.fillMaxSize()) {
@@ -138,7 +156,7 @@ fun HomeFragment(navController: NavHostController) {
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
-                            IconButton(onClick = { /* TODO: MAKE TRIGGER */ }) {
+                            IconButton(onClick = { showDialog = true }) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
                                     contentDescription = "Add"
@@ -162,6 +180,9 @@ fun HomeFragment(navController: NavHostController) {
         }
         Box {
             ListFragment()
+            if (showDialog) {
+                CreateNewHabitFragment(onDismiss = { showDialog = false })
+            }
         }
     }
 }
@@ -328,5 +349,104 @@ fun StreakFragment(streak: Int) {
             )
         }
         Text(text = "$streak", fontSize = 15.sp)
+    }
+}
+
+@Composable
+fun CreateNewHabitFragment(onDismiss: () -> Unit) {
+    var text by remember { mutableStateOf(value = "") }
+
+    var notificationsEnabled by remember { mutableStateOf(true) }
+    val selectedDays = remember { mutableStateListOf(false, false, false, false, false, false, false) }
+    val days = listOf("S", "M", "T", "W", "T", "F", "S")
+
+    // Dialog Section.
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Card(
+            shape = RoundedCornerShape(size = 16.dp),
+            modifier = Modifier
+                .padding(all = 16.dp)
+                .fillMaxWidth()
+                .heightIn(min = 220.dp),
+            elevation = CardDefaults.cardElevation(8.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White
+            )) {
+            Column(
+                modifier = Modifier
+                    .padding(all = 20.dp)
+                    .background(color = MaterialTheme.colorScheme.surface),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Create New Habit",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(height = 8.dp))
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    label = { Text(text = "Enter New Habit") },
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.height(height = 16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = { onDismiss() }) {
+                        Text(text = "Dismiss")
+                    }
+                    Button(onClick = {
+                        onDismiss()
+
+                        // Logic For Adding.
+
+                    }) {
+                        Text(text = "Create")
+                    }
+                }
+                Spacer(modifier = Modifier.height(height = 16.dp))
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        days.forEachIndexed { index, day ->
+                            OutlinedButton(
+                                onClick = { selectedDays[index] = !selectedDays[index] },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    containerColor = if (selectedDays[index]) LightGreen else Color.Transparent
+                                ),
+                                shape = CircleShape,
+                                contentPadding = PaddingValues(all = 0.dp),
+                                modifier = Modifier.size(size = 30.dp),
+                                border = BorderStroke(width = 1.dp, color = Color(color = 0xFFAAAAAA))
+                            ) {
+                                Text(text = day, color = if (selectedDays[index]) White else DarkGray)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(height = 16.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = "Notifications", style = MaterialTheme.typography.bodyLarge)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Switch(
+                                checked = notificationsEnabled,
+                                onCheckedChange = { notificationsEnabled = it }
+                            )
+                            Text(text = "14:00", modifier = Modifier.padding(start = 8.dp))
+                        }
+                    }
+                }
+            }
+        }
     }
 }
