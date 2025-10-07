@@ -1,5 +1,6 @@
 package com.example.atomize.ui.theme.home
 
+import android.app.TimePickerDialog
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,8 +37,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import android.widget.Toast
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Divider
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -309,6 +315,97 @@ fun ItemFragment(habit: Habit, onToggle: (Boolean) -> Unit) {
                     textDecoration = if (habit.isChecked) TextDecoration.LineThrough else TextDecoration.None,
                     color = if (habit.isChecked) Color.Gray else Color.Unspecified
                 )
+                Spacer(modifier = Modifier.height(height = 8.dp))
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    label = { Text(text = "Enter New Habit") },
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.height(height = 16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = { onDismiss() }) {
+                        Text(text = "Dismiss")
+                    }
+                    Button(onClick = {
+                        if (text.isBlank()) return@Button
+                        if (currentCount >= 5) {
+                            Toast.makeText(context, "Maximum 5 habits per day", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        val selected = dayCodes.filterIndexed { index, _ -> selectedDays[index] }
+                        val time: String? = if (notificationsEnabled) timeText else null
+                        viewModel.createHabitPersisted(
+                            date = currentDate,
+                            habitText = text,
+                            days = selected,
+                            notifyTime = time,
+                            notificationsEnabled = notificationsEnabled
+                        )
+                        onDismiss()
+                    }) {
+                        Text(text = "Create")
+                    }
+                }
+                Spacer(modifier = Modifier.height(height = 16.dp))
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        dayLabels.forEachIndexed { index, day ->
+                            OutlinedButton(
+                                onClick = { selectedDays[index] = !selectedDays[index] },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    containerColor = if (selectedDays[index]) LightGreen else Color.Transparent
+                                ),
+                                shape = CircleShape,
+                                contentPadding = PaddingValues(all = 0.dp),
+                                modifier = Modifier.size(size = 30.dp),
+                                border = BorderStroke(width = 1.dp, color = Color(color = 0xFFAAAAAA))
+                            ) {
+                                Text(text = day, color = if (selectedDays[index]) White else DarkGray)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(height = 16.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = "Notifications", style = MaterialTheme.typography.bodyLarge)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Switch(
+                                checked = notificationsEnabled,
+                                onCheckedChange = { notificationsEnabled = it }
+                            )
+                            Text(
+                                text = timeText,
+                                modifier = Modifier
+                                    .padding(start = 8.dp)
+                                    .clickable(enabled = notificationsEnabled) {
+                                        TimePickerDialog(
+                                            context,
+                                            { _, hourOfDay, minute ->
+                                                selectedHour = hourOfDay
+                                                selectedMinute = minute
+                                            },
+                                            selectedHour,
+                                            selectedMinute,
+                                            true
+                                        ).show()
+                                    },
+                                color = if (notificationsEnabled) DarkGray else MediumGray
+                            )
+                        }
+                    }
+                }
             }
             StreakFragment(streak = habit.streak)
         }
