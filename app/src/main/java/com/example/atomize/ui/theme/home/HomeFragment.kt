@@ -1,5 +1,6 @@
 package com.example.atomize.ui.theme.home
 
+import android.app.TimePickerDialog
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -30,6 +31,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -48,6 +50,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import android.widget.Toast
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Divider
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -266,14 +272,11 @@ fun ListFragment() {
     val viewModel: HabitViewModel = viewModel()
     val calendarState by viewModel.calendarState.collectAsState()
     val currentDate = LocalDate.now().toString()
+    // Ensure recurring habits are created for this date before observing
+    viewModel.ensureRecurringHabitsForDate(currentDate)
+    // Observe DB for current date
+    viewModel.observeHabitsForDate(currentDate)
     val habitsForCurrentDate = calendarState.habitsByDate[currentDate] ?: emptyList()
-
-    if (habitsForCurrentDate.isEmpty()) {
-        val defaultHabits = listOf("Stretch", "Run", "Light workout", "Write", "Eat vegetables")
-        defaultHabits.forEach { habitText ->
-            viewModel.addHabitForDate(currentDate, habitText)
-        }
-    }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         LazyColumn(
@@ -282,12 +285,20 @@ fun ListFragment() {
             verticalArrangement = Arrangement.spacedBy(space = 8.dp)
         ) {
             itemsIndexed(items = habitsForCurrentDate) { index, habit ->
+                var showEdit by remember { mutableStateOf(false) }
+                if (showEdit) {
+                    EditHabitDialog(habit = habit, onDismiss = { showEdit = false }) { text, days, time, enabled ->
+                        viewModel.updateHabitPersisted(habit.id, text, days, time, enabled)
+                    }
+                }
                 ItemFragment(
                     habit = habit,
                     onToggle = { isChecked ->
                         viewModel.toggleHabit(currentDate, habitId = habit.id, isChecked)
                         if (isChecked) { viewModel.increaseStrike(currentDate, habitId = habit.id) }
-                    }
+                    },
+                    onEdit = { showEdit = true },
+                    onDelete = { viewModel.deleteHabit(habit.id) }
                 )
             }
         }
@@ -295,7 +306,7 @@ fun ListFragment() {
 }
 
 @Composable
-fun ItemFragment(habit: Habit, onToggle: (Boolean) -> Unit) {
+fun ItemFragment(habit: Habit, onToggle: (Boolean) -> Unit, onEdit: () -> Unit, onDelete: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -316,8 +327,8 @@ fun ItemFragment(habit: Habit, onToggle: (Boolean) -> Unit) {
                         onToggle(isChecked)
                     },
                     colors = CheckboxDefaults.colors(
-                        checkedColor = Color.Red,
-                        uncheckedColor = Color.Red,
+                        checkedColor = PrimaryGreen,
+                        uncheckedColor = PrimaryGreen,
                         checkmarkColor = Color.White,
                         disabledCheckedColor = Color.LightGray,
                         disabledUncheckedColor = Color.DarkGray
@@ -331,13 +342,126 @@ fun ItemFragment(habit: Habit, onToggle: (Boolean) -> Unit) {
                     color = if (habit.isChecked) Color.Gray else Color.Unspecified
                 )
             }
-            StreakFragment(streak = habit.streak)
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier ) {
+                Spacer(modifier = Modifier.size(size = 8.dp))
+                if (habit.streak < 1) {
+                    StreakFragment(streak = habit.streak, tint = Color(color = 0x3CFF0000))
+                } else {
+                    StreakFragment(streak = habit.streak)
+                }
+                Column {
+                    IconButton(onClick = { onEdit() }) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit",
+                            tint = PrimaryGreen
+                        )
+                    }
+                    Spacer(modifier = Modifier.size(size = 5.dp))
+                    IconButton(onClick = { onDelete() }) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = PrimaryGreen
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-fun StreakFragment(streak: Int) {
+fun EditHabitDialog(habit: Habit, onDismiss: () -> Unit, onConfirm: (String, List<String>, String?, Boolean) -> Unit) {
+    var text by remember { mutableStateOf(value = habit.text) }
+    var notificationsEnabled by remember { mutableStateOf(habit.notificationsEnabled) }
+    val dayCodes = listOf("sun","mon","tue","wed","thu","fri","sat")
+    val dayLabels = listOf("S","M","T","W","T","F","S")
+    val selectedDays = remember { mutableStateListOf<Boolean>().apply { addAll(dayCodes.map { habit.days.contains(it) }) } }
+    val context = LocalContext.current
+    // Parse existing time or default to 14:00
+    val initialHourMinute = remember(habit.notifyTime) {
+        val parts = habit.notifyTime?.split(":")
+        val h = parts?.getOrNull(0)?.toIntOrNull() ?: 14
+        val m = parts?.getOrNull(1)?.toIntOrNull() ?: 0
+        h to m
+    }
+    var selectedHour by remember { mutableStateOf(initialHourMinute.first) }
+    var selectedMinute by remember { mutableStateOf(initialHourMinute.second) }
+    val timeText = String.format("%02d:%02d", selectedHour, selectedMinute)
+
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Card(
+            shape = RoundedCornerShape(size = 16.dp),
+            modifier = Modifier
+                .padding(all = 16.dp)
+                .fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(8.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(all = 20.dp)
+                    .background(color = MaterialTheme.colorScheme.surface),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "Edit Habit", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(height = 8.dp))
+                OutlinedTextField(value = text, onValueChange = { text = it }, label = { Text(text = "Habit Name") }, singleLine = true)
+                Spacer(modifier = Modifier.height(height = 16.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                    dayLabels.forEachIndexed { index, day ->
+                        OutlinedButton(
+                            onClick = { selectedDays[index] = !selectedDays[index] },
+                            colors = ButtonDefaults.outlinedButtonColors(containerColor = if (selectedDays[index]) LightGreen else Color.Transparent),
+                            shape = CircleShape,
+                            contentPadding = PaddingValues(all = 0.dp),
+                            modifier = Modifier.size(size = 30.dp),
+                            border = BorderStroke(width = 1.dp, color = Color(color = 0xFFAAAAAA))
+                        ) { Text(text = day, color = if (selectedDays[index]) White else DarkGray) }
+                    }
+                }
+                Spacer(modifier = Modifier.height(height = 16.dp))
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(text = "Notifications", style = MaterialTheme.typography.bodyLarge)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Switch(checked = notificationsEnabled, onCheckedChange = { notificationsEnabled = it })
+                        Text(
+                            text = timeText,
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                                .clickable(enabled = notificationsEnabled) {
+                                    TimePickerDialog(
+                                        context,
+                                        { _, hourOfDay, minute ->
+                                            selectedHour = hourOfDay
+                                            selectedMinute = minute
+                                        },
+                                        selectedHour,
+                                        selectedMinute,
+                                        true
+                                    ).show()
+                                },
+                            color = if (notificationsEnabled) DarkGray else MediumGray
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(height = 16.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = { onDismiss() }) { Text(text = "Dismiss") }
+                    Button(onClick = {
+                        val selected = dayCodes.filterIndexed { index, _ -> selectedDays[index] }
+                        onConfirm(text, selected, if (notificationsEnabled) timeText else null, notificationsEnabled)
+                        onDismiss()
+                    }) { Text(text = "Save") }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun StreakFragment(streak: Int, tint: Color = Color.Red) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         IconButton(
             onClick = { Log.i("StreakFragment: IconButton", "IconButton Has Been Clicked!") }
@@ -345,7 +469,7 @@ fun StreakFragment(streak: Int) {
             Icon(
                 painter = painterResource(id = R.drawable.fire_flame_64),
                 contentDescription = "Menu",
-                tint = Color.Red
+                tint = tint
             )
         }
         Text(text = "$streak", fontSize = 15.sp)
@@ -355,10 +479,20 @@ fun StreakFragment(streak: Int) {
 @Composable
 fun CreateNewHabitFragment(onDismiss: () -> Unit) {
     var text by remember { mutableStateOf(value = "") }
+    val viewModel: HabitViewModel = viewModel()
+    val currentDate = LocalDate.now().toString()
+    val calendarState by viewModel.calendarState.collectAsState()
+    val currentCount = calendarState.habitsByDate[currentDate]?.size ?: 0
+    val context = LocalContext.current
+    val dayCodes = listOf("sun","mon","tue","wed","thu","fri","sat")
+    val dayLabels = listOf("S","M","T","W","T","F","S")
 
     var notificationsEnabled by remember { mutableStateOf(true) }
     val selectedDays = remember { mutableStateListOf(false, false, false, false, false, false, false) }
     val days = listOf("S", "M", "T", "W", "T", "F", "S")
+    var selectedHour by remember { mutableStateOf(14) }
+    var selectedMinute by remember { mutableStateOf(0) }
+    val timeText = String.format("%02d:%02d", selectedHour, selectedMinute)
 
     // Dialog Section.
     Dialog(onDismissRequest = { onDismiss() }) {
@@ -399,10 +533,21 @@ fun CreateNewHabitFragment(onDismiss: () -> Unit) {
                         Text(text = "Dismiss")
                     }
                     Button(onClick = {
+                        if (text.isBlank()) return@Button
+                        if (currentCount >= 5) {
+                            Toast.makeText(context, "Maximum 5 habits per day", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        val selected = dayCodes.filterIndexed { index, _ -> selectedDays[index] }
+                        val time: String? = if (notificationsEnabled) timeText else null
+                        viewModel.createHabitPersisted(
+                            date = currentDate,
+                            habitText = text,
+                            days = selected,
+                            notifyTime = time,
+                            notificationsEnabled = notificationsEnabled
+                        )
                         onDismiss()
-
-                        // Logic For Adding.
-
                     }) {
                         Text(text = "Create")
                     }
@@ -413,7 +558,7 @@ fun CreateNewHabitFragment(onDismiss: () -> Unit) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        days.forEachIndexed { index, day ->
+                        dayLabels.forEachIndexed { index, day ->
                             OutlinedButton(
                                 onClick = { selectedDays[index] = !selectedDays[index] },
                                 colors = ButtonDefaults.outlinedButtonColors(
@@ -442,7 +587,24 @@ fun CreateNewHabitFragment(onDismiss: () -> Unit) {
                                 checked = notificationsEnabled,
                                 onCheckedChange = { notificationsEnabled = it }
                             )
-                            Text(text = "14:00", modifier = Modifier.padding(start = 8.dp))
+                            Text(
+                                text = timeText,
+                                modifier = Modifier
+                                    .padding(start = 8.dp)
+                                    .clickable(enabled = notificationsEnabled) {
+                                        TimePickerDialog(
+                                            context,
+                                            { _, hourOfDay, minute ->
+                                                selectedHour = hourOfDay
+                                                selectedMinute = minute
+                                            },
+                                            selectedHour,
+                                            selectedMinute,
+                                            true
+                                        ).show()
+                                    },
+                                color = if (notificationsEnabled) DarkGray else MediumGray
+                            )
                         }
                     }
                 }

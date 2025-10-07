@@ -5,7 +5,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import android.content.Context
 
-@Database(entities = [HabitEntity::class], version = 1)
+@Database(entities = [HabitEntity::class], version = 2)
 abstract class HabitDatabase : RoomDatabase() {
     abstract fun habitDao(): HabitDao
 
@@ -19,7 +19,9 @@ abstract class HabitDatabase : RoomDatabase() {
                     context.applicationContext,
                     klass = HabitDatabase::class.java,
                     name = "habit_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }

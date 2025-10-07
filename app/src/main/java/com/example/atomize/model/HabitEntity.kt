@@ -10,5 +10,10 @@ data class HabitEntity(
     val text: String,
     val isChecked: Boolean = false,
     val streak: Int = 0,
-    val date: String
+    val date: String,
+    // Comma-separated day codes, e.g., "mon,tue,wed"
+    val days: String = "",
+    // Time in HH:mm, nullable if not set
+    val notifyTime: String? = null,
+    val notificationsEnabled: Boolean = false
 )
