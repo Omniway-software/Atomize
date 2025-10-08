@@ -1,7 +1,9 @@
 package com.example.atomize.ui.theme.home
 
+import android.annotation.SuppressLint
 import android.app.TimePickerDialog
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,6 +22,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -31,6 +35,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
@@ -46,17 +51,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import android.widget.Toast
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Divider
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,10 +68,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -75,18 +81,39 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.atomize.R
 import com.example.atomize.model.Habit
-import com.example.atomize.ui.theme.*
+import com.example.atomize.ui.theme.ActivityLevel1
+import com.example.atomize.ui.theme.ActivityLevel2
+import com.example.atomize.ui.theme.ActivityLevel3
+import com.example.atomize.ui.theme.ActivityLevel4
+import com.example.atomize.ui.theme.ActivityLevel5
+import com.example.atomize.ui.theme.DarkGray
+import com.example.atomize.ui.theme.LightGreen
+import com.example.atomize.ui.theme.MediumGray
+import com.example.atomize.ui.theme.PrimaryGreen
+import com.example.atomize.ui.theme.White
 import com.example.atomize.viewmodel.HabitViewModel
-import java.time.LocalDate
-import java.time.YearMonth
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 // Home (Screen) Fragment.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeFragment(navController: NavHostController) {
     var showDialog by remember { mutableStateOf(value = false) }
+    var currentMonth by remember { mutableIntStateOf(Calendar.getInstance().get(Calendar.MONTH)) }
+    var currentYear by remember { mutableIntStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
+    val monthYearText by remember(currentMonth, currentYear) {
+        mutableStateOf(
+            Calendar.getInstance().apply {
+                set(Calendar.MONTH, currentMonth)
+                set(Calendar.YEAR, currentYear)
+            }.let { cal ->
+                SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(cal.time)
+            }
+        )
+    }
 
-    // TopAppBar
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
             title = {
@@ -106,10 +133,16 @@ fun HomeFragment(navController: NavHostController) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.weight(weight = 1f)
+                        modifier = Modifier
+                            .weight(weight = 1f)
+                            .clickable {
+                                val today = Calendar.getInstance()
+                                currentMonth = today.get(Calendar.MONTH)
+                                currentYear = today.get(Calendar.YEAR)
+                            }
                     ) {
                         Text(
-                            text = "September 2025",
+                            text = monthYearText,
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(end = 8.dp)
                         )
@@ -119,13 +152,18 @@ fun HomeFragment(navController: NavHostController) {
                             modifier = Modifier
                                 .size(size = 40.dp)
                                 .background(
-                                    color = Color(color = 0xFFFFFFFF),
+                                    color = Color.White,
                                     shape = RoundedCornerShape(size = 4.dp)
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
                             IconButton(onClick = {
-                                Log.i("TopAppBar: IconButton", "Back Has Been Clicked!")
+                                if (currentMonth == 0) {
+                                    currentMonth = 11
+                                    currentYear -= 1
+                                } else {
+                                    currentMonth -= 1
+                                }
                             }) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -138,13 +176,18 @@ fun HomeFragment(navController: NavHostController) {
                             modifier = Modifier
                                 .size(size = 40.dp)
                                 .background(
-                                    color = Color(color = 0xFFFFFFFF),
+                                    color = Color.White,
                                     shape = RoundedCornerShape(size = 4.dp)
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
                             IconButton(onClick = {
-                                Log.i("TopAppBar: IconButton", "Next Has Been Clicked!")
+                                if (currentMonth == 11) {
+                                    currentMonth = 0
+                                    currentYear += 1
+                                } else {
+                                    currentMonth += 1
+                                }
                             }) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
@@ -157,7 +200,7 @@ fun HomeFragment(navController: NavHostController) {
                             modifier = Modifier
                                 .size(size = 40.dp)
                                 .background(
-                                    color = Color(color = 0xFFFFFFFF),
+                                    color = Color.White,
                                     shape = RoundedCornerShape(size = 4.dp)
                                 ),
                             contentAlignment = Alignment.Center
@@ -175,14 +218,14 @@ fun HomeFragment(navController: NavHostController) {
             },
             windowInsets = WindowInsets(left = 0.dp),
             colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color(color = 0xFFEEEEEE),
-                titleContentColor = Color(color = 0xFF000000),
-                navigationIconContentColor = Color(color = 0xFFDDDDDD)
+                containerColor = Color(0xFFEEEEEE),
+                titleContentColor = Color(0xFF000000),
+                navigationIconContentColor = Color(0xFFDDDDDD)
             )
         )
 
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            CalendarFragment()
+            CalendarFragment(currentMonth = currentMonth, currentYear = currentYear)
         }
         Box {
             ListFragment()
@@ -195,70 +238,96 @@ fun HomeFragment(navController: NavHostController) {
 
 // Calendar Fragment.
 @Composable
-fun CalendarFragment() {
-    val today = LocalDate.now()
-    val yearMonth = YearMonth.now()
-    val firstDayOfMonth = yearMonth.atDay(1)
-    val daysInMonth = yearMonth.lengthOfMonth()
-    val dayOfWeekOffset = if (firstDayOfMonth.dayOfWeek.value == 7) 0 else firstDayOfMonth.dayOfWeek.value
-    val days = buildList {
-        repeat(times = dayOfWeekOffset) {
-            add("")
-        }
-        for (day in 1..daysInMonth)
-            add(day.toString())
+fun CalendarFragment(
+    viewModel: HabitViewModel = viewModel(),
+    currentMonth: Int,
+    currentYear: Int
+) {
+    val today = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
+    val thisMonth = Calendar.getInstance().get(Calendar.MONTH)
+    val thisYear = Calendar.getInstance().get(Calendar.YEAR)
+
+    val firstDayOfMonth = Calendar.getInstance().apply {
+        set(Calendar.YEAR, currentYear)
+        set(Calendar.MONTH, currentMonth)
+        set(Calendar.DAY_OF_MONTH, 1)
     }
+
+    val daysInMonth = firstDayOfMonth.getActualMaximum(Calendar.DAY_OF_MONTH)
+    val dayOfWeekOffset = firstDayOfMonth.get(Calendar.DAY_OF_WEEK) - 1
+
+    val days = buildList {
+        repeat(dayOfWeekOffset) { add("") }
+        for (day in 1..daysInMonth) add(day.toString())
+    }
+
     val weekDays = listOf("S", "M", "T", "W", "T", "F", "S")
+
     Column(modifier = Modifier.padding(16.dp)) {
         Row(modifier = Modifier.fillMaxWidth()) {
             weekDays.forEach { dayName ->
                 Box(
                     modifier = Modifier
-                        .weight(weight = 1f)
-                        .aspectRatio(ratio = 2f),
+                        .weight(1f)
+                        .aspectRatio(2f),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = dayName,
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
-                    )
+                    Text(text = dayName, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
                 }
             }
         }
-        Spacer(modifier = Modifier.height(height = 8.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         LazyVerticalGrid(
-            columns = GridCells.Fixed(count = 7),
+            columns = GridCells.Fixed(7),
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(space = 4.dp),
-            verticalArrangement = Arrangement.spacedBy(space = 4.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            items(items = days) { day ->
-                val isToday = day == today.dayOfMonth.toString()
+            items(days) { day ->
+                val isToday = (day.toIntOrNull() == today && currentMonth == thisMonth && currentYear == thisYear)
+
+                val dateString = if (day != "") {
+                    "${currentYear}-${String.format(Locale.US, "%02d", currentMonth + 1)}-${String.format(Locale.US, "%02d", day.toIntOrNull() ?: 1)}"
+                } else ""
+
+                var activityLevel by remember(dateString) { mutableIntStateOf(0) }
+
+                LaunchedEffect(dateString) {
+                    if (dateString.isNotEmpty()) {
+                        activityLevel = viewModel.getCompletedHabitsCountForDate(dateString)
+                    }
+                }
+
+                val dayColor = when (activityLevel.coerceIn(0, 5)) {
+                    0 -> Color.White
+                    1 -> ActivityLevel1
+                    2 -> ActivityLevel2
+                    3 -> ActivityLevel3
+                    4 -> ActivityLevel4
+                    5 -> ActivityLevel5
+                    else -> Color.White
+                }
+
                 Box(
                     modifier = Modifier
-                        .aspectRatio(ratio = 1.2F)
-                        .background(Color.White, shape = RoundedCornerShape(size = 4.dp))
+                        .aspectRatio(1.2f)
+                        .background(dayColor, shape = RoundedCornerShape(4.dp))
                         .clickable {
-                            if (day != "") {
-                                Log.i("CalendarFragment: Item", "Day $day Has Been Clicked!")
-                            } else {
-                                Log.i("CalendarFragment: Item", "Empty Day Field Has Been Clicked!")
-                            }
+                            if (day != "") Log.i("CalendarFragment", "Day $day clicked!")
                         },
                     contentAlignment = Alignment.Center
                 ) {
                     if (isToday) {
                         Box(
                             modifier = Modifier
-                                .size(size = 40.dp)
-                                .border(width = 1.dp, color = Color.Black, shape = CircleShape),
+                                .size(38.dp)
+                                .border(1.dp, Color.Black, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = day, textAlign = TextAlign.Center)
+                            Text(day, textAlign = TextAlign.Center)
                         }
                     } else {
-                        Text(text = day, textAlign = TextAlign.Center)
+                        Text(day, textAlign = TextAlign.Center)
                     }
                 }
             }
@@ -271,26 +340,28 @@ fun CalendarFragment() {
 fun ListFragment() {
     val viewModel: HabitViewModel = viewModel()
     val calendarState by viewModel.calendarState.collectAsState()
-    val currentDate = LocalDate.now().toString()
-    // Ensure recurring habits are created for this date before observing
+    val currentDate = Calendar.getInstance().let { cal ->
+        "${cal.get(Calendar.YEAR)}-${String.format(Locale.US, "%02d", cal.get(Calendar.MONTH) + 1)}-${String.format(Locale.US, "%02d", cal.get(Calendar.DAY_OF_MONTH))}"
+    }
     viewModel.ensureRecurringHabitsForDate(currentDate)
-    // Observe DB for current date
     viewModel.observeHabitsForDate(currentDate)
     val habitsForCurrentDate = calendarState.habitsByDate[currentDate] ?: emptyList()
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(all = 16.dp),
+            contentPadding = PaddingValues(all = 0.dp),
             verticalArrangement = Arrangement.spacedBy(space = 8.dp)
         ) {
             itemsIndexed(items = habitsForCurrentDate) { index, habit ->
-                var showEdit by remember { mutableStateOf(false) }
+                var showEdit by remember { mutableStateOf(value = false) }
+                var showDelete by remember { mutableStateOf(value = false) }
                 if (showEdit) {
                     EditHabitDialog(habit = habit, onDismiss = { showEdit = false }) { text, days, time, enabled ->
                         viewModel.updateHabitPersisted(habit.id, text, days, time, enabled)
                     }
                 }
+                if (showDelete) { DeleteHabitDialog(onDismiss = { showDelete = false }, onConfirm = { viewModel.deleteHabit(habit.id) })}
                 ItemFragment(
                     habit = habit,
                     onToggle = { isChecked ->
@@ -298,7 +369,7 @@ fun ListFragment() {
                         if (isChecked) { viewModel.increaseStrike(currentDate, habitId = habit.id) }
                     },
                     onEdit = { showEdit = true },
-                    onDelete = { viewModel.deleteHabit(habit.id) }
+                    onDelete = { showDelete = true }
                 )
             }
         }
@@ -306,11 +377,35 @@ fun ListFragment() {
 }
 
 @Composable
-fun ItemFragment(habit: Habit, onToggle: (Boolean) -> Unit, onEdit: () -> Unit, onDelete: () -> Unit) {
+fun ItemFragment(
+    habit: Habit,
+    onToggle: (Boolean) -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    var isChecked by remember { mutableStateOf(habit.isChecked) }
+
+    LaunchedEffect(key1 = isChecked) {
+        if (isChecked) {
+            val now = Calendar.getInstance()
+            val midnight = Calendar.getInstance().apply {
+                add(Calendar.DAY_OF_YEAR, 1)
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+            val delayMillis = midnight.timeInMillis - now.timeInMillis
+            kotlinx.coroutines.delay(delayMillis)
+            isChecked = false
+            onToggle(false)
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(height = 115.dp)
+            .height(115.dp)
             .background(Color.White, shape = RoundedCornerShape(size = 8.dp))
             .padding(all = 8.dp),
         contentAlignment = Alignment.CenterStart
@@ -320,11 +415,17 @@ fun ItemFragment(habit: Habit, onToggle: (Boolean) -> Unit, onEdit: () -> Unit, 
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
                 Checkbox(
-                    checked = habit.isChecked,
-                    onCheckedChange = { isChecked ->
-                        onToggle(isChecked)
+                    checked = isChecked,
+                    onCheckedChange = { newValue ->
+                        if (!isChecked && newValue) {
+                            isChecked = true
+                            onToggle(true)
+                        }
                     },
                     colors = CheckboxDefaults.colors(
                         checkedColor = PrimaryGreen,
@@ -334,22 +435,30 @@ fun ItemFragment(habit: Habit, onToggle: (Boolean) -> Unit, onEdit: () -> Unit, 
                         disabledUncheckedColor = Color.DarkGray
                     )
                 )
-                Spacer(modifier = Modifier.size(size = 32.dp))
+                Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = habit.text,
                     fontSize = 15.sp,
-                    textDecoration = if (habit.isChecked) TextDecoration.LineThrough else TextDecoration.None,
-                    color = if (habit.isChecked) Color.Gray else Color.Unspecified
+                    textDecoration = if (isChecked) TextDecoration.LineThrough else TextDecoration.None,
+                    color = if (isChecked) Color.Gray else Color.Unspecified,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
                 )
             }
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier ) {
-                Spacer(modifier = Modifier.size(size = 8.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.wrapContentWidth()
+            ) {
+                Spacer(modifier = Modifier.width(width = 8.dp))
                 if (habit.streak < 1) {
-                    StreakFragment(streak = habit.streak, tint = Color(color = 0x3CFF0000))
+                    StreakFragment(streak = habit.streak, tint = Color(0x3CFF0000))
                 } else {
                     StreakFragment(streak = habit.streak)
                 }
-                Column {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     IconButton(onClick = { onEdit() }) {
                         Icon(
                             imageVector = Icons.Default.Edit,
@@ -357,12 +466,12 @@ fun ItemFragment(habit: Habit, onToggle: (Boolean) -> Unit, onEdit: () -> Unit, 
                             tint = PrimaryGreen
                         )
                     }
-                    Spacer(modifier = Modifier.size(size = 5.dp))
+                    Spacer(modifier = Modifier.height(5.dp))
                     IconButton(onClick = { onDelete() }) {
                         Icon(
                             imageVector = Icons.Default.Delete,
                             contentDescription = "Delete",
-                            tint = PrimaryGreen
+                            tint = Color.Red
                         )
                     }
                 }
@@ -371,6 +480,7 @@ fun ItemFragment(habit: Habit, onToggle: (Boolean) -> Unit, onEdit: () -> Unit, 
     }
 }
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun EditHabitDialog(habit: Habit, onDismiss: () -> Unit, onConfirm: (String, List<String>, String?, Boolean) -> Unit) {
     var text by remember { mutableStateOf(value = habit.text) }
@@ -379,16 +489,15 @@ fun EditHabitDialog(habit: Habit, onDismiss: () -> Unit, onConfirm: (String, Lis
     val dayLabels = listOf("S","M","T","W","T","F","S")
     val selectedDays = remember { mutableStateListOf<Boolean>().apply { addAll(dayCodes.map { habit.days.contains(it) }) } }
     val context = LocalContext.current
-    // Parse existing time or default to 14:00
     val initialHourMinute = remember(habit.notifyTime) {
         val parts = habit.notifyTime?.split(":")
         val h = parts?.getOrNull(0)?.toIntOrNull() ?: 14
         val m = parts?.getOrNull(1)?.toIntOrNull() ?: 0
         h to m
     }
-    var selectedHour by remember { mutableStateOf(initialHourMinute.first) }
-    var selectedMinute by remember { mutableStateOf(initialHourMinute.second) }
-    val timeText = String.format("%02d:%02d", selectedHour, selectedMinute)
+    var selectedHour by remember { mutableIntStateOf(initialHourMinute.first) }
+    var selectedMinute by remember { mutableIntStateOf(initialHourMinute.second) }
+    val timeText = String.format(Locale.US, "%02d:%02d", selectedHour, selectedMinute)
 
     Dialog(onDismissRequest = { onDismiss() }) {
         Card(
@@ -425,7 +534,12 @@ fun EditHabitDialog(habit: Habit, onDismiss: () -> Unit, onConfirm: (String, Lis
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(text = "Notifications", style = MaterialTheme.typography.bodyLarge)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Switch(checked = notificationsEnabled, onCheckedChange = { notificationsEnabled = it })
+                        Switch(checked = notificationsEnabled, onCheckedChange = { notificationsEnabled = it },
+                            colors = SwitchDefaults.colors(
+                                uncheckedThumbColor = PrimaryGreen,
+                                uncheckedTrackColor = Color.White,
+                                uncheckedBorderColor = PrimaryGreen
+                            ))
                         Text(
                             text = timeText,
                             modifier = Modifier
@@ -449,6 +563,7 @@ fun EditHabitDialog(habit: Habit, onDismiss: () -> Unit, onConfirm: (String, Lis
                 Spacer(modifier = Modifier.height(height = 16.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     TextButton(onClick = { onDismiss() }) { Text(text = "Dismiss") }
+                    Spacer(modifier = Modifier.width(width = 8.dp))
                     Button(onClick = {
                         val selected = dayCodes.filterIndexed { index, _ -> selectedDays[index] }
                         onConfirm(text, selected, if (notificationsEnabled) timeText else null, notificationsEnabled)
@@ -459,6 +574,67 @@ fun EditHabitDialog(habit: Habit, onDismiss: () -> Unit, onConfirm: (String, Lis
         }
     }
 }
+
+@Composable
+fun DeleteHabitDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(8.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .background(color = MaterialTheme.colorScheme.surface),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Delete Habit",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Do you want to delete habit?",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Button(
+                        onClick = { onDismiss() },
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color.White,
+                            contentColor = PrimaryGreen
+                        )
+                    ) {
+                        Text("Dismiss")
+                    }
+                    Spacer(modifier = Modifier.width(width = 8.dp))
+                    Button(
+                        onClick = {
+                            onConfirm()
+                            onDismiss()
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text("Delete")
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 fun StreakFragment(streak: Int, tint: Color = Color.Red) {
@@ -480,7 +656,9 @@ fun StreakFragment(streak: Int, tint: Color = Color.Red) {
 fun CreateNewHabitFragment(onDismiss: () -> Unit) {
     var text by remember { mutableStateOf(value = "") }
     val viewModel: HabitViewModel = viewModel()
-    val currentDate = LocalDate.now().toString()
+    val currentDate = Calendar.getInstance().let { cal ->
+        "${cal.get(Calendar.YEAR)}-${String.format(Locale.US, "%02d", cal.get(Calendar.MONTH) + 1)}-${String.format(Locale.US, "%02d", cal.get(Calendar.DAY_OF_MONTH))}"
+    }
     val calendarState by viewModel.calendarState.collectAsState()
     val currentCount = calendarState.habitsByDate[currentDate]?.size ?: 0
     val context = LocalContext.current
@@ -489,10 +667,10 @@ fun CreateNewHabitFragment(onDismiss: () -> Unit) {
 
     var notificationsEnabled by remember { mutableStateOf(true) }
     val selectedDays = remember { mutableStateListOf(false, false, false, false, false, false, false) }
-    val days = listOf("S", "M", "T", "W", "T", "F", "S")
-    var selectedHour by remember { mutableStateOf(14) }
-    var selectedMinute by remember { mutableStateOf(0) }
-    val timeText = String.format("%02d:%02d", selectedHour, selectedMinute)
+    //val days = listOf("S", "M", "T", "W", "T", "F", "S")
+    var selectedHour by remember { mutableIntStateOf(14) }
+    var selectedMinute by remember { mutableIntStateOf(0) }
+    val timeText = String.format(Locale.US, "%02d:%02d", selectedHour, selectedMinute)
 
     // Dialog Section.
     Dialog(onDismissRequest = { onDismiss() }) {
@@ -532,6 +710,7 @@ fun CreateNewHabitFragment(onDismiss: () -> Unit) {
                     TextButton(onClick = { onDismiss() }) {
                         Text(text = "Dismiss")
                     }
+                    Spacer(modifier = Modifier.width(width = 8.dp))
                     Button(onClick = {
                         if (text.isBlank()) return@Button
                         if (currentCount >= 5) {
@@ -573,9 +752,7 @@ fun CreateNewHabitFragment(onDismiss: () -> Unit) {
                             }
                         }
                     }
-
                     Spacer(modifier = Modifier.height(height = 16.dp))
-
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -585,8 +762,12 @@ fun CreateNewHabitFragment(onDismiss: () -> Unit) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Switch(
                                 checked = notificationsEnabled,
-                                onCheckedChange = { notificationsEnabled = it }
-                            )
+                                onCheckedChange = { notificationsEnabled = it },
+                                colors = SwitchDefaults.colors(
+                                    uncheckedThumbColor = PrimaryGreen,
+                                    uncheckedTrackColor = Color.White,
+                                    uncheckedBorderColor = PrimaryGreen
+                                ))
                             Text(
                                 text = timeText,
                                 modifier = Modifier

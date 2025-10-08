@@ -1,3 +1,5 @@
+// NOTE: THOSE PARAMETERS WHICH ARE NEVER USED ARE GONNA BE USED IN FUTURE FOR IMPLEMENTING FEATURES IN FUTURE.
+
 package com.example.atomize.viewmodel
 
 import android.app.Application
@@ -15,8 +17,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicInteger
-import java.time.LocalDate
-import java.time.DayOfWeek
+import java.util.Calendar
 
 class HabitViewModel(application: Application) : AndroidViewModel(application) {
     private val _habitIdCounter = AtomicInteger(0)
@@ -42,20 +43,27 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun toDayCode(date: LocalDate): String = when (date.dayOfWeek) {
-        DayOfWeek.MONDAY -> "mon"
-        DayOfWeek.TUESDAY -> "tue"
-        DayOfWeek.WEDNESDAY -> "wed"
-        DayOfWeek.THURSDAY -> "thu"
-        DayOfWeek.FRIDAY -> "fri"
-        DayOfWeek.SATURDAY -> "sat"
-        DayOfWeek.SUNDAY -> "sun"
+    private fun toDayCode(calendar: Calendar): String = when (calendar.get(Calendar.DAY_OF_WEEK)) {
+        Calendar.MONDAY -> "mon"
+        Calendar.TUESDAY -> "tue"
+        Calendar.WEDNESDAY -> "wed"
+        Calendar.THURSDAY -> "thu"
+        Calendar.FRIDAY -> "fri"
+        Calendar.SATURDAY -> "sat"
+        Calendar.SUNDAY -> "sun"
+        else -> "sun"
     }
 
     fun ensureRecurringHabitsForDate(date: String) {
         viewModelScope.launch {
-            val targetDate = runCatching { LocalDate.parse(date) }.getOrNull() ?: return@launch
-            val dayCode = toDayCode(targetDate)
+            val parts = date.split("-")
+            if (parts.size != 3) return@launch
+            val calendar = Calendar.getInstance().apply {
+                set(Calendar.YEAR, parts[0].toIntOrNull() ?: return@launch)
+                set(Calendar.MONTH, (parts[1].toIntOrNull() ?: return@launch) - 1)
+                set(Calendar.DAY_OF_MONTH, parts[2].toIntOrNull() ?: return@launch)
+            }
+            val dayCode = toDayCode(calendar)
             val templates = dao.getRecurringTemplates()
             if (templates.isEmpty()) return@launch
             for (template in templates) {
@@ -79,7 +87,6 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun addHabitForDate(date: String, habitText: String) {
-        // Legacy in-memory add retained for previews; prefer createHabitPersisted
         _calendarState.update { currentState ->
             val existingHabits = currentState.habitsByDate[date] ?: emptyList()
             val newHabit = Habit(
@@ -131,5 +138,9 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
 
     fun deleteHabit(habitId: Int) {
         viewModelScope.launch { dao.deleteHabit(habitId) }
+    }
+
+    suspend fun getCompletedHabitsCountForDate(date: String): Int {
+        return dao.countCompletedHabitsForDate(date)
     }
 }

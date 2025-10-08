@@ -23,6 +23,9 @@ interface HabitDao {
     @Query(value = "SELECT COUNT(*) FROM habits WHERE date = :date AND text = :text")
     suspend fun countHabitsByDateAndText(date: String, text: String): Int
 
+    @Query(value = "SELECT COUNT(*) FROM habits WHERE date = :date AND isChecked = 1")
+    suspend fun countCompletedHabitsForDate(date: String): Int
+
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHabit(habit: HabitEntity): Long
