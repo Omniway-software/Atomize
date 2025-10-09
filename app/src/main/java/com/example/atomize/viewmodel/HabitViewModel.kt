@@ -1,5 +1,3 @@
-// NOTE: THOSE PARAMETERS WHICH ARE NEVER USED ARE GONNA BE USED IN FUTURE FOR IMPLEMENTING FEATURES IN FUTURE.
-
 package com.example.atomize.viewmodel
 
 import android.app.Application
@@ -18,6 +16,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.Calendar
+import kotlinx.coroutines.delay
+import java.util.Locale
 
 class HabitViewModel(application: Application) : AndroidViewModel(application) {
     private val _habitIdCounter = AtomicInteger(0)
@@ -27,6 +27,10 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
 
     private val dao = HabitDatabase.getDatabase(application).habitDao()
     private var observeJob: Job? = null
+
+    init {
+        scheduleMidnightUncheck()
+    }
 
     fun setHabitsForDate(date: String, habits: List<Habit>) {
         _calendarState.update { state ->
@@ -101,7 +105,13 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun createHabitPersisted(date: String, habitText: String, days: List<String> = emptyList(), notifyTime: String? = null, notificationsEnabled: Boolean = false) {
+    fun createHabitPersisted(
+        date: String,
+        habitText: String,
+        days: List<String> = emptyList(),
+        notifyTime: String? = null,
+        notificationsEnabled: Boolean = false
+    ) {
         viewModelScope.launch {
             if (habitText.isBlank()) return@launch
             val count = dao.countHabitsForDate(date)
@@ -120,7 +130,13 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun updateHabitPersisted(id: Int, text: String, days: List<String>, notifyTime: String?, notificationsEnabled: Boolean) {
+    fun updateHabitPersisted(
+        id: Int,
+        text: String,
+        days: List<String>,
+        notifyTime: String?,
+        notificationsEnabled: Boolean
+    ) {
         viewModelScope.launch {
             dao.updateHabit(
                 id = id,
@@ -142,5 +158,34 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
 
     suspend fun getCompletedHabitsCountForDate(date: String): Int {
         return dao.countCompletedHabitsForDate(date)
+    }
+
+    private fun scheduleMidnightUncheck() {
+        viewModelScope.launch {
+            while (true) {
+                val now = Calendar.getInstance()
+                val midnight = Calendar.getInstance().apply {
+                    add(Calendar.DAY_OF_YEAR, 1)
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+
+                val delayMillis = midnight.timeInMillis - now.timeInMillis
+                delay(delayMillis)
+
+                dao.resetAllCheckedStates()
+
+                val today = String.format(
+                    Locale.US,
+                    "%04d-%02d-%02d",
+                    midnight.get(Calendar.YEAR),
+                    midnight.get(Calendar.MONTH) + 1,
+                    midnight.get(Calendar.DAY_OF_MONTH)
+                )
+                observeHabitsForDate(today)
+            }
+        }
     }
 }

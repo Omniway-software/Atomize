@@ -92,6 +92,8 @@ import com.example.atomize.ui.theme.MediumGray
 import com.example.atomize.ui.theme.PrimaryGreen
 import com.example.atomize.ui.theme.White
 import com.example.atomize.viewmodel.HabitViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -112,6 +114,20 @@ fun HomeFragment(navController: NavHostController) {
                 SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(cal.time)
             }
         )
+    }
+
+    val viewModel: HabitViewModel = viewModel()
+    val currentDate = Calendar.getInstance().let { cal ->
+        "${cal.get(Calendar.YEAR)}-${String.format(Locale.US, "%02d", cal.get(Calendar.MONTH) + 1)}-${String.format(Locale.US, "%02d", cal.get(Calendar.DAY_OF_MONTH))}"
+    }
+    val calendarState by viewModel.calendarState.collectAsState()
+    val currentCount = calendarState.habitsByDate[currentDate]?.size ?: 0
+
+    LaunchedEffect(currentCount) {
+        if (currentCount < 1) {
+            delay(1000)
+            showDialog = true
+        }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -311,10 +327,7 @@ fun CalendarFragment(
                 Box(
                     modifier = Modifier
                         .aspectRatio(1.2f)
-                        .background(dayColor, shape = RoundedCornerShape(4.dp))
-                        .clickable {
-                            if (day != "") Log.i("CalendarFragment", "Day $day clicked!")
-                        },
+                        .background(dayColor, shape = RoundedCornerShape(4.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     if (isToday) {
@@ -361,12 +374,14 @@ fun ListFragment() {
                         viewModel.updateHabitPersisted(habit.id, text, days, time, enabled)
                     }
                 }
-                if (showDelete) { DeleteHabitDialog(onDismiss = { showDelete = false }, onConfirm = { viewModel.deleteHabit(habit.id) })}
+                if (showDelete) {
+                    DeleteHabitDialog(onDismiss = { showDelete = false }, onConfirm = { viewModel.deleteHabit(habit.id) })
+                }
                 ItemFragment(
                     habit = habit,
                     onToggle = { isChecked ->
                         viewModel.toggleHabit(currentDate, habitId = habit.id, isChecked)
-                        if (isChecked) { viewModel.increaseStrike(currentDate, habitId = habit.id) }
+                        if (isChecked) viewModel.increaseStrike(currentDate, habitId = habit.id)
                     },
                     onEdit = { showEdit = true },
                     onDelete = { showDelete = true }
@@ -385,8 +400,8 @@ fun ItemFragment(
 ) {
     var isChecked by remember { mutableStateOf(habit.isChecked) }
 
-    LaunchedEffect(key1 = isChecked) {
-        if (isChecked) {
+    LaunchedEffect(key1 = habit.id) {
+        while (true) {
             val now = Calendar.getInstance()
             val midnight = Calendar.getInstance().apply {
                 add(Calendar.DAY_OF_YEAR, 1)
@@ -397,8 +412,10 @@ fun ItemFragment(
             }
             val delayMillis = midnight.timeInMillis - now.timeInMillis
             kotlinx.coroutines.delay(delayMillis)
-            isChecked = false
-            onToggle(false)
+            if (isChecked) {
+                isChecked = false
+                onToggle(false)
+            }
         }
     }
 
@@ -451,10 +468,10 @@ fun ItemFragment(
                 modifier = Modifier.wrapContentWidth()
             ) {
                 Spacer(modifier = Modifier.width(width = 8.dp))
-                if (habit.streak < 1) {
-                    StreakFragment(streak = habit.streak, tint = Color(0x3CFF0000))
+                if (habit.streak > 0) {
+                    StreakFragment(streak = habit.streak, tint = Color.Red)
                 } else {
-                    StreakFragment(streak = habit.streak)
+                    StreakFragment(streak = habit.streak, tint = Color(0x3CFF0000))
                 }
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -635,19 +652,14 @@ fun DeleteHabitDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
     }
 }
 
-
 @Composable
 fun StreakFragment(streak: Int, tint: Color = Color.Red) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        IconButton(
-            onClick = { Log.i("StreakFragment: IconButton", "IconButton Has Been Clicked!") }
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.fire_flame_64),
-                contentDescription = "Menu",
-                tint = tint
-            )
-        }
+        Icon(modifier = Modifier.size(size = 40.dp),
+            painter = painterResource(id = R.drawable.fire_flame_64),
+            contentDescription = "Menu",
+            tint = tint
+        )
         Text(text = "$streak", fontSize = 15.sp)
     }
 }
