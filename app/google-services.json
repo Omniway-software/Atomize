@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "265707717599",
+    "project_id": "atomize-86edb",
+    "storage_bucket": "atomize-86edb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:265707717599:android:463b7c90c2a329947c3a6a",
+        "android_client_info": {
+          "package_name": "com.omniway.atomize"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkct32YtCZ14UoaG16sKCCrrrlhhvQrYs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -6,14 +6,17 @@ plugins {
     // Hilt
     id("com.google.dagger.hilt.android")
     id("org.jetbrains.kotlin.kapt")
+
+    // GMS
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.example.atomize"
+    namespace = "com.omniway.atomize"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.atomize"
+        applicationId = "com.omniway.atomize"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -65,6 +68,23 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     // Custom Implementations Section.
+    // Firebase Related Section.
+    // Firebase BOM.
+    implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
+    implementation("com.google.firebase:firebase-auth")
+
+    // Compose BOM.
+    implementation(platform("androidx.compose:compose-bom:2024.06.00"))
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended")
+
+    // Firebase Analytics
+    implementation("com.google.firebase:firebase-analytics")
+    // End Of Firebase Related Section.
+
     // Kotlin Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
@@ -93,4 +113,7 @@ dependencies {
     implementation("androidx.room:room-runtime:2.8.1")
     implementation("androidx.room:room-ktx:2.8.1")
     kapt("androidx.room:room-compiler:2.8.1")
+
+    // Lottie.
+    implementation("com.airbnb.android:lottie-compose:6.1.0")
 }

@@ -1,4 +1,4 @@
-package com.example.atomize.model
+package com.omniway.atomize.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

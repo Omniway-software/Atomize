@@ -1,4 +1,4 @@
-package com.example.atomize
+package com.omniway.atomize
 
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package com.example.atomize.model
+package com.omniway.atomize.model
 
 import androidx.room.Database
 import androidx.room.Room

@@ -5,5 +5,9 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
 
     // Custom Plugins Section.
+    // Dagger & Hilt Section.
     id("com.google.dagger.hilt.android") version "2.48" apply false
+
+    // GMS Section.
+    id("com.google.gms.google-services") version "4.4.3" apply false
 }

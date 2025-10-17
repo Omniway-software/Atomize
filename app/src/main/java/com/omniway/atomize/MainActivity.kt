@@ -1,4 +1,4 @@
-package com.example.atomize
+package com.omniway.atomize
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -12,8 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.atomize.ui.theme.AtomizeTheme
-import com.example.atomize.ui.theme.home.HomeFragment
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.omniway.atomize.ui.auth.AuthFragment
+import com.omniway.atomize.ui.home.HomeFragment
+import com.omniway.atomize.ui.theme.AtomizeTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,8 +43,23 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         modifier = modifier
     ) {
         // Defining Routes Section.
+        // Home Screen.
         composable(route = "home") {
             HomeFragment(navController)
         }
+
+        // Auth Screen.
+        composable(route = "auth") {
+            AuthFragment(navController)
+        }
+    }
+}
+
+// Authentication Section.
+class AuthenticationManager {
+    private val auth = Firebase.auth
+
+    fun createAccountWithEmail(email: String, password: String) {
+        auth.createUserWithEmailAndPassword(email,password)
     }
 }

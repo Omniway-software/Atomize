@@ -1,4 +1,4 @@
-package com.example.atomize.model
+package com.omniway.atomize.model
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -50,7 +50,12 @@ interface HabitDao {
     @Query("DELETE FROM habits WHERE id = :id")
     suspend fun deleteHabit(id: Int)
 
-    // 🔹 NOVO: resetuje sve checkboxe u ponoć bez brisanja streaka
     @Query("UPDATE habits SET isChecked = 0")
     suspend fun resetAllCheckedStates()
+
+    @Query("SELECT * FROM habits WHERE id = :id LIMIT 1")
+    suspend fun getHabitById(id: Int): HabitEntity?
+
+    @Query("DELETE FROM habits WHERE text = :text")
+    suspend fun deleteAllHabitsByText(text: String)
 }

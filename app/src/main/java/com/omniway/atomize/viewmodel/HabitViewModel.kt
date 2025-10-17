@@ -1,13 +1,13 @@
-package com.example.atomize.viewmodel
+package com.omniway.atomize.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.atomize.model.CalendarState
-import com.example.atomize.model.Habit
-import com.example.atomize.model.HabitDatabase
-import com.example.atomize.model.toHabit
-import com.example.atomize.model.toEntity
+import com.omniway.atomize.model.CalendarState
+import com.omniway.atomize.model.Habit
+import com.omniway.atomize.model.HabitDatabase
+import com.omniway.atomize.model.toHabit
+import com.omniway.atomize.model.toEntity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -153,7 +153,21 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun deleteHabit(habitId: Int) {
-        viewModelScope.launch { dao.deleteHabit(habitId) }
+        viewModelScope.launch {
+            val habit = dao.getHabitById(habitId)?.toHabit()
+
+            if (habit != null && habit.days.isNotEmpty()) {
+                dao.deleteAllHabitsByText(habit.text)
+            } else {
+                dao.deleteHabit(habitId)
+            }
+        }
+    }
+
+    fun deleteAllHabitsByText(text: String) {
+        viewModelScope.launch {
+            dao.deleteAllHabitsByText(text)
+        }
     }
 
     suspend fun getCompletedHabitsCountForDate(date: String): Int {
@@ -189,3 +203,4 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 }
+

@@ -1,4 +1,4 @@
-package com.example.atomize.model
+package com.omniway.atomize.model
 
 data class Habit(
     val id: Int,

@@ -1,4 +1,4 @@
-package com.example.atomize.ui.theme
+package com.omniway.atomize.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
