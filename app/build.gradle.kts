@@ -12,11 +12,11 @@ plugins {
 }
 
 android {
-    namespace = "com.omniway.atomize"
+    namespace = "com.infinitysoftware.atomize"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.omniway.atomize"
+        applicationId = "com.infinitysoftware.atomize"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
