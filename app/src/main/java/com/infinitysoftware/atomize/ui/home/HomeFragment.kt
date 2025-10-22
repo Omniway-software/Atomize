@@ -222,14 +222,14 @@ fun HomeFragment(navController: NavHostController) {
                             modifier = Modifier
                                 .size(size = 40.dp)
                                 .background(
-                                    color = if (canCreateHabit) Color.White else Color(0xFFCCCCCC),
+                                    color = if (canCreateHabit && currentCount < 5) Color.White else Color(color = 0xFFDDDDDD),
                                     shape = RoundedCornerShape(size = 4.dp)
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
                             IconButton(
                                 onClick = {
-                                    if (canCreateHabit) {
+                                    if (canCreateHabit && currentCount < 5) {
                                         showDialog = true
                                     }
                                 },
@@ -238,7 +238,7 @@ fun HomeFragment(navController: NavHostController) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
                                     contentDescription = "Add",
-                                    tint = if (canCreateHabit) Color.Black else Color.Gray
+                                    tint = if (canCreateHabit && currentCount < 5) Color.Black else Color.Gray
                                 )
                             }
                         }
@@ -446,7 +446,6 @@ fun ListFragment(selectedDate: String) {
     val todayString = Calendar.getInstance().let { cal ->
         "${cal.get(Calendar.YEAR)}-${String.format(Locale.US, "%02d", cal.get(Calendar.MONTH) + 1)}-${String.format(Locale.US, "%02d", cal.get(Calendar.DAY_OF_MONTH))}"
     }
-    //val isToday = selectedDate == todayString
     val isPast = selectedDate < todayString
     val isEditable = !isPast
 
@@ -491,6 +490,13 @@ fun ItemFragment(
     var showDelete by remember { mutableStateOf(value = false) }
     val viewModel: HabitViewModel = viewModel()
 
+    val todayString = Calendar.getInstance().let { cal ->
+        "${cal.get(Calendar.YEAR)}-${String.format(Locale.US, "%02d", cal.get(Calendar.MONTH) + 1)}-${String.format(Locale.US, "%02d", cal.get(Calendar.DAY_OF_MONTH))}"
+    }
+    val isFuture = selectedDate > todayString
+    val canCheck = isEditable && !isFuture
+    val canEditOrDelete = true
+
     val currentStreak = habit.streak
 
     if (showEdit) {
@@ -504,8 +510,10 @@ fun ItemFragment(
     }
 
     val handleToggle: (Boolean) -> Unit = { newValue ->
-        isChecked = newValue
-        onToggle(newValue)
+        if (canCheck) {
+            isChecked = newValue
+            onToggle(newValue)
+        }
     }
 
     Box(
@@ -513,11 +521,11 @@ fun ItemFragment(
             .fillMaxWidth()
             .height(115.dp)
             .background(
-                color = if (isEditable) Color.White else Color(0xFFF5F5F5),
+                color = if (canCheck) Color.White else Color(0xFFF5F5F5),
                 shape = RoundedCornerShape(size = 8.dp)
             )
             .padding(horizontal = 8.dp)
-            .clickable(enabled = isEditable) { handleToggle(!isChecked) },
+            .clickable(enabled = canCheck) { handleToggle(!isChecked) },
         contentAlignment = Alignment.CenterStart
     ) {
         Row(
@@ -532,7 +540,7 @@ fun ItemFragment(
                 Checkbox(
                     checked = isChecked,
                     onCheckedChange = handleToggle,
-                    enabled = isEditable,
+                    enabled = canCheck,
                     colors = CheckboxDefaults.colors(
                         checkedColor = PrimaryGreen,
                         uncheckedColor = PrimaryGreen,
@@ -546,7 +554,7 @@ fun ItemFragment(
                     text = habit.text,
                     fontSize = 15.sp,
                     textDecoration = if (isChecked) TextDecoration.LineThrough else TextDecoration.None,
-                    color = if (isChecked) Color.Gray else if (isEditable) Color.Unspecified else Color.DarkGray,
+                    color = if (isChecked) Color.Gray else if (canCheck) Color.Unspecified else Color.DarkGray,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
@@ -562,7 +570,7 @@ fun ItemFragment(
                     StreakFragment(streak = currentStreak, state = true)
                 }
 
-                if (isEditable) {
+                if (canEditOrDelete) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         MoreOptionsItemFragmentMenu(
                             onEdit = { showEdit = true },
