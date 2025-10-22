@@ -103,7 +103,10 @@ import java.util.Locale
 // Home (Screen) Fragment.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeFragment(navController: NavHostController) {
+fun HomeFragment(
+    navController: NavHostController,
+    onMenuClick: () -> Unit = {}
+) {
     var showDialog by remember { mutableStateOf(value = false) }
     var currentMonth by remember { mutableIntStateOf(Calendar.getInstance().get(Calendar.MONTH)) }
     var currentYear by remember { mutableIntStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
@@ -138,11 +141,7 @@ fun HomeFragment(navController: NavHostController) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = {
-                        navController.navigate("auth") {
-                            popUpTo("home") { inclusive = false }
-                        }
-                    }) {
+                    IconButton(onClick = onMenuClick) {
                         Icon(
                             imageVector = Icons.Default.Menu,
                             contentDescription = "Menu"
