@@ -34,7 +34,7 @@ import androidx.navigation.NavHostController
 import com.infinitysoftware.atomize.ui.theme.PrimaryGreen
 
 @Composable
-fun AuthFragment(navController: NavHostController){
+fun SignInFragment(navController: NavHostController){
     var emailTextInput by remember { mutableStateOf(value = "") }
     var passwordTextInput by remember { mutableStateOf(value = "") }
     var showPassword by remember { mutableStateOf(value = false) }

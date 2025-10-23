@@ -1,4 +1,4 @@
-package com.infinitysoftware.atomize.model
+package com.infinitysoftware.atomize.model.habit
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -26,7 +26,7 @@ interface HabitDao {
     @Query("SELECT COUNT(*) FROM habits WHERE date = :date AND isChecked = 1")
     suspend fun countCompletedHabitsForDate(date: String): Int
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertHabit(habit: HabitEntity): Long
 
     @Query("UPDATE habits SET isChecked = :isChecked WHERE id = :id")

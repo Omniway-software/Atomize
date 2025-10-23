@@ -1,4 +1,4 @@
-package com.infinitysoftware.atomize.model
+package com.infinitysoftware.atomize.model.habit
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

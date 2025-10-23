@@ -70,6 +70,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -84,7 +85,8 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.infinitysoftware.atomize.R
-import com.infinitysoftware.atomize.model.Habit
+import com.infinitysoftware.atomize.model.habit.Habit
+import com.infinitysoftware.atomize.ui.settings.SettingsViewModel
 import com.infinitysoftware.atomize.ui.theme.ActivityLevel1
 import com.infinitysoftware.atomize.ui.theme.ActivityLevel2
 import com.infinitysoftware.atomize.ui.theme.ActivityLevel3
@@ -100,22 +102,21 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-// Home (Screen) Fragment.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeFragment(
     navController: NavHostController,
+    settingsViewModel: SettingsViewModel,
     onMenuClick: () -> Unit = {}
 ) {
+    val settings by settingsViewModel.settings.collectAsState()
     var showDialog by remember { mutableStateOf(value = false) }
     var currentMonth by remember { mutableIntStateOf(Calendar.getInstance().get(Calendar.MONTH)) }
     var currentYear by remember { mutableIntStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
-
     val todayString = Calendar.getInstance().let { cal ->
         "${cal.get(Calendar.YEAR)}-${String.format(Locale.US, "%02d", cal.get(Calendar.MONTH) + 1)}-${String.format(Locale.US, "%02d", cal.get(Calendar.DAY_OF_MONTH))}"
     }
     var selectedDate by remember { mutableStateOf(todayString) }
-
     val monthYearText by remember(currentMonth, currentYear) {
         mutableStateOf(
             Calendar.getInstance().apply {
@@ -126,13 +127,11 @@ fun HomeFragment(
             }
         )
     }
-
     val viewModel: HabitViewModel = viewModel()
     val calendarState by viewModel.calendarState.collectAsState()
     val currentCount = calendarState.habitsByDate[selectedDate]?.size ?: 0
     val isPastDate = selectedDate < todayString
     val canCreateHabit = !isPastDate
-
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
             title = {
@@ -252,7 +251,6 @@ fun HomeFragment(
                 navigationIconContentColor = Color(0xFFDDDDDD)
             )
         )
-
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             CalendarFragment(
                 currentMonth = currentMonth,
@@ -261,10 +259,13 @@ fun HomeFragment(
                 onDateSelected = { date -> selectedDate = date }
             )
         }
-
         if (currentCount < 1) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                ListFragment(selectedDate = selectedDate)
+                ListFragment(
+                    selectedDate = selectedDate,
+                    showStreak = settings.showStreak,
+                    animatedIcon = settings.animatedIcon
+                )
                 if (showDialog && canCreateHabit) {
                     CreateNewHabitDialog(
                         selectedDate = selectedDate,
@@ -298,7 +299,11 @@ fun HomeFragment(
             }
         } else {
             Box {
-                ListFragment(selectedDate = selectedDate)
+                ListFragment(
+                    selectedDate = selectedDate,
+                    showStreak = settings.showStreak,
+                    animatedIcon = settings.animatedIcon
+                )
                 if (showDialog && canCreateHabit) {
                     CreateNewHabitDialog(
                         selectedDate = selectedDate,
@@ -309,8 +314,6 @@ fun HomeFragment(
         }
     }
 }
-
-// Calendar Fragment.
 @Composable
 fun CalendarFragment(
     viewModel: HabitViewModel = viewModel(),
@@ -322,24 +325,19 @@ fun CalendarFragment(
     val today = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
     val thisMonth = Calendar.getInstance().get(Calendar.MONTH)
     val thisYear = Calendar.getInstance().get(Calendar.YEAR)
-
     val firstDayOfMonth = Calendar.getInstance().apply {
         set(Calendar.YEAR, currentYear)
         set(Calendar.MONTH, currentMonth)
         set(Calendar.DAY_OF_MONTH, 1)
     }
-
     val daysInMonth = firstDayOfMonth.getActualMaximum(Calendar.DAY_OF_MONTH)
     val dayOfWeekOffset = firstDayOfMonth.get(Calendar.DAY_OF_WEEK) - 1
-
     val days = buildList {
         repeat(dayOfWeekOffset) { add("") }
         for (day in 1..daysInMonth) add(day.toString())
     }
-
     val weekDays = listOf("S", "M", "T", "W", "T", "F", "S")
     val calendarState by viewModel.calendarState.collectAsState()
-
     androidx.compose.runtime.LaunchedEffect(currentMonth, currentYear) {
         for (day in 1..daysInMonth) {
             val dateString = "${currentYear}-${String.format(Locale.US, "%02d", currentMonth + 1)}-${String.format(Locale.US, "%02d", day)}"
@@ -347,7 +345,6 @@ fun CalendarFragment(
             viewModel.observeHabitsForDate(dateString)
         }
     }
-
     Column(modifier = Modifier.padding(16.dp)) {
         Row(modifier = Modifier.fillMaxWidth()) {
             weekDays.forEach { dayName ->
@@ -371,7 +368,6 @@ fun CalendarFragment(
             items(days) { day ->
                 val isToday =
                     (day.toIntOrNull() == today && currentMonth == thisMonth && currentYear == thisYear)
-
                 val dateString = if (day != "") {
                     "${currentYear}-${
                         String.format(
@@ -381,13 +377,10 @@ fun CalendarFragment(
                         )
                     }-${String.format(Locale.US, "%02d", day.toIntOrNull() ?: 1)}"
                 } else ""
-
                 val isSelected = dateString == selectedDate
                 val habitsForDay = calendarState.habitsByDate[dateString] ?: emptyList()
                 val completedCount = habitsForDay.count { it.isChecked }
-
                 val activityLevel = completedCount.coerceIn(0, 5)
-
                 val dayColor = when (activityLevel) {
                     0 -> Color.White
                     1 -> ActivityLevel1
@@ -397,7 +390,6 @@ fun CalendarFragment(
                     5 -> ActivityLevel5
                     else -> Color.White
                 }
-
                 Box(
                     modifier = Modifier
                         .aspectRatio(1.2f)
@@ -432,16 +424,17 @@ fun CalendarFragment(
     }
 }
 
-// List Of Items Fragment.
 @Composable
-fun ListFragment(selectedDate: String) {
+fun ListFragment(
+    selectedDate: String,
+    showStreak: Boolean = true,
+    animatedIcon: Boolean = true
+) {
     val viewModel: HabitViewModel = viewModel()
     val calendarState by viewModel.calendarState.collectAsState()
-
     viewModel.ensureRecurringHabitsForDate(selectedDate)
     viewModel.observeHabitsForDate(selectedDate)
     val habitsForSelectedDate = calendarState.habitsByDate[selectedDate] ?: emptyList()
-
     val todayString = Calendar.getInstance().let { cal ->
         "${cal.get(Calendar.YEAR)}-${String.format(Locale.US, "%02d", cal.get(Calendar.MONTH) + 1)}-${String.format(Locale.US, "%02d", cal.get(Calendar.DAY_OF_MONTH))}"
     }
@@ -460,6 +453,8 @@ fun ListFragment(selectedDate: String) {
                         habit = habit,
                         selectedDate = selectedDate,
                         isEditable = isEditable,
+                        showStreak = showStreak,
+                        animatedIcon = animatedIcon,
                         onToggle = { isChecked ->
                             if (isEditable) {
                                 viewModel.toggleHabit(selectedDate, habitId = habit.id, isChecked)
@@ -482,39 +477,35 @@ fun ItemFragment(
     habit: Habit,
     selectedDate: String,
     isEditable: Boolean,
+    showStreak: Boolean = true,
+    animatedIcon: Boolean = true,
     onToggle: (Boolean) -> Unit
 ) {
     var isChecked by remember(key1 = habit.id, key2 = habit.isChecked) { mutableStateOf(value = habit.isChecked) }
     var showEdit by remember { mutableStateOf(value = false) }
     var showDelete by remember { mutableStateOf(value = false) }
     val viewModel: HabitViewModel = viewModel()
-
     val todayString = Calendar.getInstance().let { cal ->
         "${cal.get(Calendar.YEAR)}-${String.format(Locale.US, "%02d", cal.get(Calendar.MONTH) + 1)}-${String.format(Locale.US, "%02d", cal.get(Calendar.DAY_OF_MONTH))}"
     }
     val isFuture = selectedDate > todayString
     val canCheck = isEditable && !isFuture
     val canEditOrDelete = true
-
     val currentStreak = habit.streak
-
     if (showEdit) {
         EditHabitDialog(habit = habit, onDismiss = { showEdit = false }) { text, days, time, enabled ->
             viewModel.updateHabitPersisted(habit.id, text, days, time, enabled)
         }
     }
-
     if (showDelete) {
         DeleteHabitDialog(onDismiss = { showDelete = false }, habit = habit, onConfirm = { viewModel.deleteHabit(habit.id) })
     }
-
     val handleToggle: (Boolean) -> Unit = { newValue ->
         if (canCheck) {
             isChecked = newValue
             onToggle(newValue)
         }
     }
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -565,10 +556,20 @@ fun ItemFragment(
             ) {
                 Spacer(modifier = Modifier.width(width = 8.dp))
 
-                if (currentStreak != 0) {
-                    StreakFragment(streak = currentStreak, state = true)
-                }
+                if (showStreak && currentStreak != 0) {
+                    StreakFragment(
+                        streak = currentStreak,
+                        state = true,
+                        animatedIcon = animatedIcon
+                    )
+                } else if (showStreak && currentStreak == 0) {
+                    StreakFragment(
+                        streak = currentStreak,
+                        state = true,
+                        animatedIcon = animatedIcon
+                    )
 
+                }
                 if (canEditOrDelete) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         MoreOptionsItemFragmentMenu(
@@ -593,7 +594,6 @@ fun MoreOptionsItemFragmentMenu(onEdit: () -> Unit, onDelete: () -> Unit){
                 contentDescription = "More options"
             )
         }
-
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
@@ -638,7 +638,6 @@ fun CreateNewHabitDialog(selectedDate: String, onDismiss: () -> Unit) {
     val context = LocalContext.current
     val dayCodes = listOf("sun","mon","tue","wed","thu","fri","sat")
     val dayLabels = listOf("S","M","T","W","T","F","S")
-
     var notificationsEnabled by remember { mutableStateOf(true) }
     val selectedDays = remember { mutableStateListOf(false, false, false, false, false, false, false) }
     var selectedHour by remember { mutableIntStateOf(14) }
@@ -925,13 +924,11 @@ fun DeleteHabitDialog(habit: Habit, onDismiss: () -> Unit, onConfirm: () -> Unit
 @Composable
 fun AnimatedIcon(state: Boolean = false) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.fire))
-
     val progress by animateLottieCompositionAsState(
         composition = composition,
         iterations = 1,
         speed = 0.75F
     )
-
     LottieAnimation(
         composition = composition,
         progress = if (state) progress else 0F,
@@ -940,9 +937,26 @@ fun AnimatedIcon(state: Boolean = false) {
 }
 
 @Composable
-fun StreakFragment(streak: Int, state: Boolean) {
+fun StreakFragment(streak: Int, state: Boolean, animatedIcon: Boolean = true) {
+    val tintColor = if (streak > 0) Color.Red else Color.Red.copy(alpha = 0.3f)
+    if (animatedIcon && streak == 0) return
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        AnimatedIcon(state)
-        Text(text = "$streak", fontSize = 15.sp)
+        when {
+            animatedIcon && streak > 0 -> {
+                AnimatedIcon(state)
+            }
+            !animatedIcon -> {
+                Icon(
+                    painter = painterResource(id = R.drawable.fire_flame_64),
+                    contentDescription = "Streak",
+                    modifier = Modifier.size(48.dp),
+                    tint = tintColor
+                )
+            }
+        }
+        Text(
+            text = "$streak",
+            fontSize = 15.sp
+        )
     }
 }

@@ -19,6 +19,7 @@ class MainActivity : ComponentActivity() {
             AtomizeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavDrawer(modifier = Modifier.padding(paddingValues = innerPadding))
+                    //SignInFragment()
                 }
             }
         }

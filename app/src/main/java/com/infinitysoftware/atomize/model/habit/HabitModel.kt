@@ -1,4 +1,4 @@
-package com.infinitysoftware.atomize.model
+package com.infinitysoftware.atomize.model.habit
 
 data class Habit(
     val id: Int,

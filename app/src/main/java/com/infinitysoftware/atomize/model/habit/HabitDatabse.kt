@@ -1,13 +1,23 @@
-package com.infinitysoftware.atomize.model
+package com.infinitysoftware.atomize.model.habit
 
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import android.content.Context
+import com.infinitysoftware.atomize.model.settings.Settings
+import com.infinitysoftware.atomize.model.settings.SettingsDao
 
-@Database(entities = [HabitEntity::class], version = 2)
+@Database(
+    entities = [
+        HabitEntity::class,
+        Settings::class
+    ],
+    version = 3,
+    exportSchema = false
+)
 abstract class HabitDatabase : RoomDatabase() {
     abstract fun habitDao(): HabitDao
+    abstract fun settingsDao(): SettingsDao
 
     companion object {
         @Volatile

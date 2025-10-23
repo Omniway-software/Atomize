@@ -15,7 +15,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -26,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,15 +33,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.infinitysoftware.atomize.R
 import com.infinitysoftware.atomize.model.Screens
+import com.infinitysoftware.atomize.model.habit.HabitDatabase
 import com.infinitysoftware.atomize.ui.about.AboutFragment
 import com.infinitysoftware.atomize.ui.home.HomeFragment
 import com.infinitysoftware.atomize.ui.settings.SettingsFragment
+import com.infinitysoftware.atomize.ui.settings.SettingsViewModel
+import com.infinitysoftware.atomize.ui.settings.SettingsViewModelFactory
 import com.infinitysoftware.atomize.ui.theme.PrimaryGreen
 import kotlinx.coroutines.launch
 
@@ -54,6 +58,11 @@ fun NavDrawer(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val database = remember { HabitDatabase.getDatabase(context) }
+    val settingsDao = remember { database.settingsDao() }
+    val settingsViewModel: SettingsViewModel = viewModel(
+        factory = SettingsViewModelFactory(settingsDao)
+    )
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -75,7 +84,6 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                                 color = Color.White
                             )
                         }
-                        HorizontalDivider()
                         NavigationDrawerItem(
                             label = { Text("Home") },
                             selected = currentRoute == Screens.Home.screen,
@@ -88,9 +96,10 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                                         launchSingleTop = true
                                     }
                                 }
+
                             },
                             colors = NavigationDrawerItemDefaults.colors(
-                                selectedContainerColor = PrimaryGreen.copy(alpha = 0.1f),
+                                selectedContainerColor = PrimaryGreen.copy(alpha = 0.3f),
                                 selectedIconColor = PrimaryGreen,
                                 selectedTextColor = PrimaryGreen,
                                 unselectedIconColor = Color.Gray,
@@ -111,7 +120,7 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                                 }
                             },
                             colors = NavigationDrawerItemDefaults.colors(
-                                selectedContainerColor = PrimaryGreen.copy(alpha = 0.1f),
+                                selectedContainerColor = PrimaryGreen.copy(alpha = 0.3f),
                                 selectedIconColor = PrimaryGreen,
                                 selectedTextColor = PrimaryGreen,
                                 unselectedIconColor = Color.Gray,
@@ -132,7 +141,7 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                                 }
                             },
                             colors = NavigationDrawerItemDefaults.colors(
-                                selectedContainerColor = PrimaryGreen.copy(alpha = 0.1f),
+                                selectedContainerColor = PrimaryGreen.copy(alpha = 0.3f),
                                 selectedIconColor = PrimaryGreen,
                                 selectedTextColor = PrimaryGreen,
                                 unselectedIconColor = Color.Gray,
@@ -176,6 +185,7 @@ fun NavDrawer(modifier: Modifier = Modifier) {
             composable(route = Screens.Home.screen) {
                 HomeFragment(
                     navController = navController,
+                    settingsViewModel = settingsViewModel,
                     onMenuClick = {
                         coroutineScope.launch {
                             if (drawerState.isClosed) {
@@ -188,7 +198,7 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                 )
             }
             composable(route = Screens.Settings.screen) {
-                SettingsFragment()
+                SettingsFragment(viewModel = settingsViewModel)
             }
             composable(route = Screens.About.screen) {
                 AboutFragment()

@@ -3,11 +3,11 @@ package com.infinitysoftware.atomize.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.infinitysoftware.atomize.model.CalendarState
-import com.infinitysoftware.atomize.model.Habit
-import com.infinitysoftware.atomize.model.HabitDatabase
-import com.infinitysoftware.atomize.model.toEntity
-import com.infinitysoftware.atomize.model.toHabit
+import com.infinitysoftware.atomize.model.habit.CalendarState
+import com.infinitysoftware.atomize.model.habit.Habit
+import com.infinitysoftware.atomize.model.habit.HabitDatabase
+import com.infinitysoftware.atomize.model.habit.toEntity
+import com.infinitysoftware.atomize.model.habit.toHabit
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
