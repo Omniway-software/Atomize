@@ -29,12 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.infinitysoftware.atomize.ui.theme.ActivityLevel1
-import com.infinitysoftware.atomize.ui.theme.ActivityLevel2
-import com.infinitysoftware.atomize.ui.theme.ActivityLevel3
-import com.infinitysoftware.atomize.ui.theme.ActivityLevel4
-import com.infinitysoftware.atomize.ui.theme.ActivityLevel5
-import com.infinitysoftware.atomize.ui.theme.PrimaryGreen
 import com.infinitysoftware.atomize.viewmodel.HabitViewModel
 import java.util.Calendar
 import java.util.Locale
@@ -71,16 +65,35 @@ fun CalendarFragment(
             viewModel.observeHabitsForDate(dateString)
         }
     }
+
+    @Composable
+    fun getActivityColor(level: Int): Color {
+        return when (level) {
+            0 -> MaterialTheme.colorScheme.surface
+            1 -> Color(0xFFC8E6C9)
+            2 -> Color(0xFFA5D6A7)
+            3 -> Color(0xFF81C784)
+            4 -> Color(0xFF66BB6A)
+            5 -> MaterialTheme.colorScheme.primary
+            else -> MaterialTheme.colorScheme.surface
+        }
+    }
+
     Column(modifier = Modifier.padding(16.dp)) {
         Row(modifier = Modifier.fillMaxWidth()) {
-            weekDays.forEach { dayName ->
+            weekDays.forEachIndexed { index, dayName ->
                 Box(
                     modifier = Modifier
                         .weight(1f)
                         .aspectRatio(2f),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = dayName, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+                    Text(
+                        text = dayName,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        color = if (index == 0) Color.Red else MaterialTheme.colorScheme.onSurface
+                    )
                 }
             }
         }
@@ -107,15 +120,16 @@ fun CalendarFragment(
                 val habitsForDay = calendarState.habitsByDate[dateString] ?: emptyList()
                 val completedCount = habitsForDay.count { it.isChecked }
                 val activityLevel = completedCount.coerceIn(0, 5)
-                val dayColor = when (activityLevel) {
-                    0 -> Color.White
-                    1 -> ActivityLevel1
-                    2 -> ActivityLevel2
-                    3 -> ActivityLevel3
-                    4 -> ActivityLevel4
-                    5 -> ActivityLevel5
-                    else -> Color.White
+                val dayColor = getActivityColor(activityLevel)
+                val calendar = Calendar.getInstance().apply {
+                    if (day.isNotEmpty()) {
+                        set(Calendar.YEAR, currentYear)
+                        set(Calendar.MONTH, currentMonth)
+                        set(Calendar.DAY_OF_MONTH, day.toIntOrNull() ?: 1)
+                    }
                 }
+                val isSunday = day.isNotEmpty() && calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY
+
                 Box(
                     modifier = Modifier
                         .aspectRatio(1.2f)
@@ -123,7 +137,7 @@ fun CalendarFragment(
                         .then(
                             if (isSelected) Modifier.border(
                                 width = 2.dp,
-                                color = PrimaryGreen,
+                                color = MaterialTheme.colorScheme.primary,
                                 shape = RoundedCornerShape(4.dp)
                             ) else Modifier
                         )
@@ -136,13 +150,44 @@ fun CalendarFragment(
                         Box(
                             modifier = Modifier
                                 .size(38.dp)
-                                .border(1.dp, Color.Black, CircleShape),
+                                .border(
+                                    1.dp,
+                                    MaterialTheme.colorScheme.primary,
+                                    CircleShape
+                                ),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(day, textAlign = TextAlign.Center)
+                            Text(
+                                day,
+                                textAlign = TextAlign.Center,
+                                color = if (isSunday) Color.Red else MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     } else {
-                        Text(day, textAlign = TextAlign.Center)
+                        Text(
+                            day,
+                            textAlign = TextAlign.Center,
+                            color = if (isSunday) {
+                                Color.Red
+                            } else if (activityLevel == 0) {
+                                MaterialTheme.colorScheme.onSurface
+                            } else {
+                                MaterialTheme.colorScheme.onPrimary
+                            }
+                        )
+                    }
+
+                    if (habitsForDay.isNotEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(4.dp)
+                                .size(6.dp)
+                                .background(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    shape = CircleShape
+                                )
+                        )
                     }
                 }
             }
