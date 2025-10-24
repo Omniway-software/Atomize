@@ -31,13 +31,13 @@ val PrimaryTextColor = Color(color = 0xFF212121)
 val SecondaryTextColor = Color(color = 0xFF757575)
 val DisabledTextColor = Color(color = 0xFFBDBDBD)
 
-// Activity Calendar Colors (GitHub-style heatmap)
-val ActivityLevel0 = Color(0xFFF1F8E9) // Very light green - 0 tasks
-val ActivityLevel1 = Color(0xFFC8E6C9) // Light green - 1 task
-val ActivityLevel2 = Color(0xFFA5D6A7) // Medium-light green - 2 tasks
-val ActivityLevel3 = Color(0xFF81C784) // Medium green - 3 tasks
-val ActivityLevel4 = Color(0xFF66BB6A) // Darker green - 4 tasks
-val ActivityLevel5 = PrimaryGreen      // Full green - 5 tasks (max)
+// Activity Calendar Colors
+val ActivityLevel0 = Color(0xFFF1F8E9)
+val ActivityLevel1 = Color(0xFFC8E6C9)
+val ActivityLevel2 = Color(0xFFA5D6A7)
+val ActivityLevel3 = Color(0xFF81C784)
+val ActivityLevel4 = Color(0xFF66BB6A)
+val ActivityLevel5 = PrimaryGreen
 
 // Mapping Functionalities.
 val CalendarActiveDay = PrimaryGreen
