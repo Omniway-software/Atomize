@@ -1,6 +1,7 @@
 package com.infinitysoftware.atomize.ui
 
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -160,7 +161,8 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                             icon = { Icon(Icons.Default.ExitToApp, contentDescription = "Exit") },
                             onClick = {
                                 coroutineScope.launch { drawerState.close() }
-                                Toast.makeText(context, "Exit", Toast.LENGTH_SHORT).show()
+                                val activity = (context as? ComponentActivity)
+                                activity?.finishAffinity()
                             },
                             colors = NavigationDrawerItemDefaults.colors(
                                 unselectedIconColor = Color.Red,

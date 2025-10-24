@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "265707717599",
-    "project_id": "atomize-86edb",
-    "storage_bucket": "atomize-86edb.firebasestorage.app"
+    "project_number": "809738675979",
+    "project_id": "atomize-275a6",
+    "storage_bucket": "atomize-275a6.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:265707717599:android:463b7c90c2a329947c3a6a",
+        "mobilesdk_app_id": "1:809738675979:android:6d01f81a653579de96240e",
         "android_client_info": {
           "package_name": "com.infinitysoftware.atomize"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDkct32YtCZ14UoaG16sKCCrrrlhhvQrYs"
+          "current_key": "AIzaSyCbBUZVfJUb5fa5j1l6HImzy60vS2VJ8Bw"
         }
       ],
       "services": {
