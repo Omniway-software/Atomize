@@ -299,7 +299,7 @@ fun CreateNewHabitDialog(selectedDate: String, onDismiss: () -> Unit) {
     val selectedDays = remember { mutableStateListOf(false, false, false, false, false, false, false) }
     var selectedHour by remember { mutableIntStateOf(14) }
     var selectedMinute by remember { mutableIntStateOf(0) }
-    val habitLimit by remember { mutableStateOf(5) }
+    val habitLimit by remember { mutableIntStateOf(5) }
     val timeText = String.format(Locale.US, "%02d:%02d", selectedHour, selectedMinute)
 
     val constants = Constants()
@@ -342,15 +342,12 @@ fun CreateNewHabitDialog(selectedDate: String, onDismiss: () -> Unit) {
                         dayLabels.forEachIndexed { index, day ->
                             OutlinedButton(
                                 onClick = { selectedDays[index] = !selectedDays[index] },
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = if (selectedDays[index]) LightGreen else Color.Transparent
-                                ),
+                                colors = ButtonDefaults.outlinedButtonColors(containerColor = if (selectedDays[index]) LightGreen else Color.Transparent),
                                 shape = CircleShape,
+                                contentPadding = PaddingValues(all = 0.dp),
                                 modifier = Modifier.size(size = constants.dayButtonSize),
                                 border = BorderStroke(width = constants.dayButtonBorderWidth, color = Color(color = 0xFFAAAAAA))
-                            ) {
-                                Text(text = day, color = if (selectedDays[index]) White else DarkGray)
-                            }
+                            ) { Text(text = day, color = if (selectedDays[index]) White else DarkGray) }
                         }
                     }
                     Spacer(modifier = Modifier.height(height = constants.spacerMedium))
@@ -610,7 +607,7 @@ fun AnimatedIcon(state: Boolean = false) {
 @Composable
 fun StreakFragment(streak: Int, state: Boolean, animatedIcon: Boolean = true) {
     val constants = Constants()
-    val streakThreshold by remember { mutableStateOf(0) }
+    val streakThreshold by remember { mutableIntStateOf(0) }
     val tintColor = if (streak > streakThreshold) Color.Red else Color.Red.copy(alpha = constants.streakTintColorAlpha)
     if (animatedIcon && streak == streakThreshold) return
     Column(horizontalAlignment = Alignment.CenterHorizontally) {

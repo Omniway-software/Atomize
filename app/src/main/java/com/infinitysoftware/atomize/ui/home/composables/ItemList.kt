@@ -65,7 +65,6 @@ fun ListComposable(
         Column {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(all = 0.dp),
                 verticalArrangement = Arrangement.spacedBy(space = 8.dp)
             ) {
                 itemsIndexed(items = habitsForSelectedDate) { index, habit ->

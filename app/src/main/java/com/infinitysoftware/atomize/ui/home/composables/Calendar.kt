@@ -161,10 +161,10 @@ fun CalendarComposable(
                     if (isToday) {
                         Box(
                             modifier = Modifier
-                                .size(38.dp)
+                                .size(32.dp)
                                 .border(
                                     1.dp,
-                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.onSurface,
                                     CircleShape
                                 ),
                             contentAlignment = Alignment.Center
@@ -196,7 +196,7 @@ fun CalendarComposable(
                                 .padding(4.dp)
                                 .size(6.dp)
                                 .background(
-                                    color = MaterialTheme.colorScheme.tertiary,
+                                    color = MaterialTheme.colorScheme.error,
                                     shape = CircleShape
                                 )
                         )
