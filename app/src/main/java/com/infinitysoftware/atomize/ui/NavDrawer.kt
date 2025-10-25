@@ -1,6 +1,5 @@
 package com.infinitysoftware.atomize.ui
 
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -35,7 +34,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -67,6 +65,8 @@ fun NavDrawer(modifier: Modifier = Modifier) {
         factory = SettingsViewModelFactory(settingsDao)
     )
 
+    val constants = Constants()
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         gesturesEnabled = true,
@@ -78,7 +78,7 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                             modifier = Modifier
                                 .background(PrimaryGreen)
                                 .fillMaxWidth()
-                                .height(64.dp),
+                                .height(constants.navDrawerHeight),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -88,10 +88,10 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                             )
                         }
                         NavigationDrawerItem(
-                            label = { Text("Home", fontWeight = FontWeight.Bold) },
+                            label = { Text(stringResource(R.string.nav_home), fontWeight = FontWeight.Bold) },
                             selected = currentRoute == Screens.Home.screen,
                             shape = RectangleShape,
-                            icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                            icon = { Icon(Icons.Default.Home, contentDescription = stringResource(R.string.cd_home)) },
                             onClick = {
                                 coroutineScope.launch { drawerState.close() }
                                 if (currentRoute != Screens.Home.screen) {
@@ -103,7 +103,7 @@ fun NavDrawer(modifier: Modifier = Modifier) {
 
                             },
                             colors = NavigationDrawerItemDefaults.colors(
-                                selectedContainerColor = PrimaryGreen.copy(alpha = 0.3F),
+                                selectedContainerColor = PrimaryGreen.copy(alpha = constants.navDrawerSelectedItemAlpha),
                                 selectedIconColor = PrimaryGreen,
                                 selectedTextColor = PrimaryGreen,
                                 unselectedIconColor = Color.Gray,
@@ -111,10 +111,10 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                             )
                         )
                         NavigationDrawerItem(
-                            label = { Text("Settings", fontWeight = FontWeight.Bold) },
+                            label = { Text(stringResource(R.string.nav_settings), fontWeight = FontWeight.Bold) },
                             selected = currentRoute == Screens.Settings.screen,
                             shape = RectangleShape,
-                            icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
+                            icon = { Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.cd_settings)) },
                             onClick = {
                                 coroutineScope.launch { drawerState.close() }
                                 if (currentRoute != Screens.Settings.screen) {
@@ -125,7 +125,7 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                                 }
                             },
                             colors = NavigationDrawerItemDefaults.colors(
-                                selectedContainerColor = PrimaryGreen.copy(alpha = 0.3F),
+                                selectedContainerColor = PrimaryGreen.copy(alpha = constants.navDrawerSelectedItemAlpha),
                                 selectedIconColor = PrimaryGreen,
                                 selectedTextColor = PrimaryGreen,
                                 unselectedIconColor = Color.Gray,
@@ -133,10 +133,10 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                             )
                         )
                         NavigationDrawerItem(
-                            label = { Text("About", fontWeight = FontWeight.Bold) },
+                            label = { Text(stringResource(R.string.nav_about), fontWeight = FontWeight.Bold) },
                             selected = currentRoute == Screens.About.screen,
                             shape = RectangleShape,
-                            icon = { Icon(Icons.Default.Info, contentDescription = "About") },
+                            icon = { Icon(Icons.Default.Info, contentDescription = stringResource(R.string.cd_about)) },
                             onClick = {
                                 coroutineScope.launch { drawerState.close() }
                                 if (currentRoute != Screens.About.screen) {
@@ -147,7 +147,7 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                                 }
                             },
                             colors = NavigationDrawerItemDefaults.colors(
-                                selectedContainerColor = PrimaryGreen.copy(alpha = 0.3F),
+                                selectedContainerColor = PrimaryGreen.copy(alpha = constants.navDrawerSelectedItemAlpha),
                                 selectedIconColor = PrimaryGreen,
                                 selectedTextColor = PrimaryGreen,
                                 unselectedIconColor = Color.Gray,
@@ -155,10 +155,10 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                             )
                         )
                         NavigationDrawerItem(
-                            label = { Text("Exit", fontWeight = FontWeight.Bold) },
+                            label = { Text(stringResource(R.string.nav_exit), fontWeight = FontWeight.Bold) },
                             selected = false,
                             shape = RectangleShape,
-                            icon = { Icon(Icons.Default.ExitToApp, contentDescription = "Exit") },
+                            icon = { Icon(Icons.Default.ExitToApp, contentDescription = stringResource(R.string.cd_exit)) },
                             onClick = {
                                 coroutineScope.launch { drawerState.close() }
                                 val activity = (context as? ComponentActivity)
@@ -173,10 +173,10 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
-                            .padding(bottom = 16.dp)
+                            .padding(bottom = constants.applicationVersionPadding)
                     ) {
                         Text(
-                            text = "Version: ${com.infinitysoftware.atomize.BuildConfig.VERSION_NAME}",
+                            text = stringResource(R.string.nav_version, com.infinitysoftware.atomize.BuildConfig.VERSION_NAME),
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Gray
                         )

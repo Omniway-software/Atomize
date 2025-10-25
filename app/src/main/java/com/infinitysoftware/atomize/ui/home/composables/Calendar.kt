@@ -26,16 +26,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.infinitysoftware.atomize.R
 import com.infinitysoftware.atomize.viewmodel.HabitViewModel
 import java.util.Calendar
 import java.util.Locale
 import kotlin.collections.count
 
 @Composable
-fun CalendarFragment(
+fun CalendarComposable(
     viewModel: HabitViewModel = viewModel(),
     currentMonth: Int,
     currentYear: Int,
@@ -56,7 +58,17 @@ fun CalendarFragment(
         repeat(dayOfWeekOffset) { add("") }
         for (day in 1..daysInMonth) add(day.toString())
     }
-    val weekDays = listOf("S", "M", "T", "W", "T", "F", "S")
+
+    val weekDays = listOf(
+        stringResource(R.string.day_sun),
+        stringResource(R.string.day_mon),
+        stringResource(R.string.day_tue),
+        stringResource(R.string.day_wed),
+        stringResource(R.string.day_thu),
+        stringResource(R.string.day_fri),
+        stringResource(R.string.day_sat)
+    )
+
     val calendarState by viewModel.calendarState.collectAsState()
     androidx.compose.runtime.LaunchedEffect(currentMonth, currentYear) {
         for (day in 1..daysInMonth) {
@@ -184,7 +196,7 @@ fun CalendarFragment(
                                 .padding(4.dp)
                                 .size(6.dp)
                                 .background(
-                                    color = MaterialTheme.colorScheme.primary,
+                                    color = MaterialTheme.colorScheme.tertiary,
                                     shape = CircleShape
                                 )
                         )

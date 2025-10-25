@@ -1,6 +1,8 @@
 package com.infinitysoftware.atomize.ui.about
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -8,11 +10,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Animation
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,65 +23,38 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.infinitysoftware.atomize.R
 
 @Composable
 fun AboutFragment() {
     val uriHandler = LocalUriHandler.current
     val primaryGreen = MaterialTheme.colorScheme.primary
+    val constants = Constants()
+
     val creditsText = buildAnnotatedString {
-        withStyle(SpanStyle(color = Color.Black)) {
-            append("'Streak Icon [Fire]' animation by ")
-        }
-        pushStringAnnotation(tag = "AUTHOR", annotation = "https://lottiefiles.com/twlt1o42jpm59mva")
-        withStyle(
-            SpanStyle(
-                color = primaryGreen,
-                textDecoration = TextDecoration.Underline,
-                fontWeight = FontWeight.Bold
-            )
-        ) {
-            append("Mohsen Zamani")
+        withStyle(SpanStyle(color = Color.Black)) { append(stringResource(R.string.about_animation_by)) }
+        pushStringAnnotation("AUTHOR", stringResource(R.string.url_author))
+        withStyle(SpanStyle(color = primaryGreen, textDecoration = TextDecoration.Underline, fontWeight = FontWeight.Bold)) {
+            append(stringResource(R.string.about_author_name))
         }
         pop()
-        withStyle(SpanStyle(color = Color.Black)) {
-            append(" via ")
-        }
-        pushStringAnnotation(tag = "LOTTIE", annotation = "https://lottiefiles.com")
-        withStyle(
-            SpanStyle(
-                color = primaryGreen,
-                textDecoration = TextDecoration.Underline
-            )
-        ) {
-            append("LottieFiles")
-        }
+        withStyle(SpanStyle(color = Color.Black)) { append(stringResource(R.string.about_via)) }
+        pushStringAnnotation("LOTTIE", stringResource(R.string.url_lottie_files))
+        withStyle(SpanStyle(color = primaryGreen, textDecoration = TextDecoration.Underline)) { append(stringResource(R.string.about_lottie_files)) }
         pop()
-        withStyle(SpanStyle(color = Color.Black)) {
-            append(", licensed under the ")
-        }
-
-        pushStringAnnotation(tag = "LICENSE", annotation = "https://lottiefiles.com/page/license")
-        withStyle(
-            SpanStyle(
-                color = primaryGreen,
-                textDecoration = TextDecoration.Underline
-            )
-        ) {
-            append("Lottie License")
-        }
+        withStyle(SpanStyle(color = Color.Black)) { append(stringResource(R.string.about_licensed_under)) }
+        pushStringAnnotation("LICENSE", stringResource(R.string.url_lottie_license))
+        withStyle(SpanStyle(color = primaryGreen, textDecoration = TextDecoration.Underline)) { append(stringResource(R.string.about_lottie_license)) }
         pop()
-
-        withStyle(SpanStyle(color = Color.Black)) {
-            append(".")
-        }
+        withStyle(SpanStyle(color = Color.Black)) { append(".") }
     }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -87,7 +62,7 @@ fun AboutFragment() {
                 Brush.verticalGradient(
                     colors = listOf(
                         MaterialTheme.colorScheme.surface,
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = constants.surfaceVariantAlpha)
                     )
                 )
             )
@@ -96,65 +71,49 @@ fun AboutFragment() {
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 16.dp),
+                .padding(horizontal = constants.screenHorizontalPadding, vertical = constants.screenVerticalPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 20.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.primary)
-                    .padding(24.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "About",
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    letterSpacing = 1.sp
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.about_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.fillMaxWidth().padding(all = constants.titlePadding)
+            )
+
+            Spacer(modifier = Modifier.height(constants.titleBottomSpacing))
+
             UnifiedInfoCard(
                 icon = Icons.Filled.Person,
-                title = "Application By:",
-                content = "Dušan Rosić",
+                title = stringResource(R.string.about_application_by),
+                content = stringResource(R.string.about_developer_name),
                 iconBackgroundColor = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            UnifiedInfoCard(
-                icon = Icons.Filled.Star,
-                title = "Special Thanks To:",
-                content = "Djordje Stanišić – whose guidance and feedback greatly contributed to this project.",
-                iconBackgroundColor = MaterialTheme.colorScheme.primary,
-                isLongText = true
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+
+            Spacer(modifier = Modifier.height(constants.cardSpacing))
+
+            ExpandablePrivacyPolicyCard()
+
+            Spacer(modifier = Modifier.height(constants.cardSpacing))
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .shadow(
-                        elevation = 8.dp,
-                        shape = RoundedCornerShape(20.dp),
-                        spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                        elevation = constants.cardElevation,
+                        shape = RoundedCornerShape(constants.cardCornerRadius),
+                        spotColor = MaterialTheme.colorScheme.primary.copy(alpha = constants.shadowAlpha)
                     ),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                ),
-                shape = RoundedCornerShape(20.dp)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                shape = RoundedCornerShape(constants.cardCornerRadius)
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
+                    modifier = Modifier.fillMaxWidth().padding(constants.cardPadding),
                     verticalAlignment = Alignment.Top
                 ) {
                     Box(
-                        modifier = Modifier
-                            .size(56.dp)
-                            .clip(CircleShape)
+                        modifier = Modifier.size(constants.iconBoxSize).clip(CircleShape)
                             .background(MaterialTheme.colorScheme.primary),
                         contentAlignment = Alignment.Center
                     ) {
@@ -162,37 +121,88 @@ fun AboutFragment() {
                             imageVector = Icons.Outlined.Animation,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(28.dp)
+                            modifier = Modifier.size(constants.iconSize)
                         )
                     }
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
+                    Spacer(modifier = Modifier.width(constants.iconSpacing))
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Animation Credits:",
+                            text = stringResource(R.string.about_animation_credits),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
-                            modifier = Modifier.padding(bottom = 12.dp)
+                            modifier = Modifier.padding(bottom = constants.creditsBottomSpacing)
                         )
                         ClickableText(
                             text = creditsText,
                             style = MaterialTheme.typography.bodyMedium.copy(
-                                fontSize = 14.sp,
-                                lineHeight = 22.sp
+                                fontSize = constants.creditsFontSize,
+                                lineHeight = constants.creditsLineHeight
                             ),
                             onClick = { offset ->
-                                creditsText.getStringAnnotations("AUTHOR", offset, offset)
-                                    .firstOrNull()?.let { uriHandler.openUri(it.item) }
-                                creditsText.getStringAnnotations("LOTTIE", offset, offset)
-                                    .firstOrNull()?.let { uriHandler.openUri(it.item) }
-                                creditsText.getStringAnnotations("LICENSE", offset, offset)
-                                    .firstOrNull()?.let { uriHandler.openUri(it.item) }
+                                creditsText.getStringAnnotations("AUTHOR", offset, offset).firstOrNull()?.let { uriHandler.openUri(it.item) }
+                                creditsText.getStringAnnotations("LOTTIE", offset, offset).firstOrNull()?.let { uriHandler.openUri(it.item) }
+                                creditsText.getStringAnnotations("LICENSE", offset, offset).firstOrNull()?.let { uriHandler.openUri(it.item) }
                             }
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun ExpandablePrivacyPolicyCard() {
+    var expanded by remember { mutableStateOf(false) }
+    val constants = Constants()
+    val privacyTitle = stringResource(R.string.about_privacy_policy_title)
+    val privacyText = stringResource(R.string.privacy_policy_content)
+
+    Card(
+        modifier = Modifier.fillMaxWidth()
+            .shadow(
+                elevation = constants.cardElevation,
+                shape = RoundedCornerShape(constants.cardCornerRadius),
+                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = constants.shadowAlpha)
+            )
+            .clickable { expanded = !expanded }
+            .animateContentSize(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        shape = RoundedCornerShape(constants.cardCornerRadius)
+    ) {
+        Row(modifier = Modifier.padding(constants.cardPadding), verticalAlignment = Alignment.Top) {
+            Box(
+                modifier = Modifier.size(constants.iconBoxSize).clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Description,
+                    contentDescription = privacyTitle,
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(constants.iconSize)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(constants.iconSpacing))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = privacyTitle,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+
+                Spacer(modifier = Modifier.height(constants.contentTopSpacing))
+
+                val previewText = if (expanded) privacyText else privacyText.lines().take(constants.privacyPreviewLines).joinToString("\n")
+                Text(
+                    text = previewText,
+                    style = MaterialTheme.typography.bodyMedium.copy(lineHeight = constants.privacyLineHeight),
+                    color = Color.Black
+                )
             }
         }
     }
@@ -206,29 +216,24 @@ fun UnifiedInfoCard(
     iconBackgroundColor: Color,
     isLongText: Boolean = false
 ) {
+    val constants = Constants()
+
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
             .shadow(
-                elevation = 8.dp,
-                shape = RoundedCornerShape(20.dp),
-                spotColor = iconBackgroundColor.copy(alpha = 0.5f)
+                elevation = constants.cardElevation,
+                shape = RoundedCornerShape(constants.cardCornerRadius),
+                spotColor = iconBackgroundColor.copy(alpha = constants.shadowAlpha)
             ),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
-        shape = RoundedCornerShape(20.dp)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        shape = RoundedCornerShape(constants.cardCornerRadius)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
+            modifier = Modifier.fillMaxWidth().padding(constants.cardPadding),
             verticalAlignment = if (isLongText) Alignment.Top else Alignment.CenterVertically
         ) {
             Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
+                modifier = Modifier.size(constants.iconBoxSize).clip(CircleShape)
                     .background(iconBackgroundColor),
                 contentAlignment = Alignment.Center
             ) {
@@ -236,26 +241,24 @@ fun UnifiedInfoCard(
                     imageVector = icon,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(28.dp)
+                    modifier = Modifier.size(constants.iconSize)
                 )
             }
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
+            Spacer(modifier = Modifier.width(constants.iconSpacing))
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(constants.contentTopSpacing))
                 Text(
                     text = content,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     color = Color.Black,
-                    lineHeight = 22.sp
+                    lineHeight = constants.creditsLineHeight
                 )
             }
         }

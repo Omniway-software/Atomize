@@ -37,7 +37,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.infinitysoftware.atomize.model.habit.Habit
 import com.infinitysoftware.atomize.ui.home.DeleteHabitDialog
 import com.infinitysoftware.atomize.ui.home.EditHabitDialog
-import com.infinitysoftware.atomize.ui.home.MoreOptionsItemFragmentMenu
+import com.infinitysoftware.atomize.ui.home.MoreOptionsItemMenu
 import com.infinitysoftware.atomize.ui.home.StreakFragment
 import com.infinitysoftware.atomize.ui.theme.PrimaryGreen
 import com.infinitysoftware.atomize.viewmodel.HabitViewModel
@@ -45,7 +45,7 @@ import java.util.Calendar
 import java.util.Locale
 
 @Composable
-fun ListFragment(
+fun ListComposable(
     selectedDate: String,
     showStreak: Boolean = true,
     animatedIcon: Boolean = true
@@ -69,7 +69,7 @@ fun ListFragment(
                 verticalArrangement = Arrangement.spacedBy(space = 8.dp)
             ) {
                 itemsIndexed(items = habitsForSelectedDate) { index, habit ->
-                    ItemFragment(
+                    ItemComposable(
                         habit = habit,
                         selectedDate = selectedDate,
                         isEditable = isEditable,
@@ -93,7 +93,7 @@ fun ListFragment(
 }
 
 @Composable
-fun ItemFragment(
+fun ItemComposable(
     habit: Habit,
     selectedDate: String,
     isEditable: Boolean,
@@ -192,7 +192,7 @@ fun ItemFragment(
                 }
                 if (canEditOrDelete) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        MoreOptionsItemFragmentMenu(
+                        MoreOptionsItemMenu(
                             onEdit = { showEdit = true },
                             onDelete = { showDelete = true }
                         )

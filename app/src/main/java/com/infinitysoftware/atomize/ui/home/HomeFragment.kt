@@ -53,10 +53,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -67,9 +67,9 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.infinitysoftware.atomize.R
 import com.infinitysoftware.atomize.model.habit.Habit
-import com.infinitysoftware.atomize.ui.home.composables.AppBar
-import com.infinitysoftware.atomize.ui.home.composables.CalendarFragment
-import com.infinitysoftware.atomize.ui.home.composables.ListFragment
+import com.infinitysoftware.atomize.ui.home.composables.AppBarComposable
+import com.infinitysoftware.atomize.ui.home.composables.CalendarComposable
+import com.infinitysoftware.atomize.ui.home.composables.ListComposable
 import com.infinitysoftware.atomize.ui.settings.SettingsViewModel
 import com.infinitysoftware.atomize.ui.theme.DarkGray
 import com.infinitysoftware.atomize.ui.theme.LightGreen
@@ -120,37 +120,53 @@ fun HomeFragment(
     val isPastDate = selectedDate < todayString
     val canCreateHabit = !isPastDate
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    val constants = Constants()
 
-        AppBar(currentMonth = currentMonth, currentYear = currentYear, currentCount = currentCount,
-            canCreateHabit = canCreateHabit, monthYearText = monthYearText, onMenuClick = onMenuClick,
-            onMonthDecrement = {
-                if (currentMonth == 0) {
-                    currentMonth = 11
-                    currentYear -= 1
-                } else {
-                    currentMonth -= 1
-                }
-            },
-            onMonthIncrement = {
-                if (currentMonth == 11) {
-                    currentMonth = 0
-                    currentYear += 1
-                } else {
-                    currentMonth += 1
-                }
-            },
-            onAddHabitClick = { showDialog = true },
-            onResetToToday = {
-                val today = Calendar.getInstance()
-                currentMonth = today.get(Calendar.MONTH)
-                currentYear = today.get(Calendar.YEAR)
-                selectedDate = todayString
-            }
+    val onMonthDecrement: () -> Unit = {
+        if (currentMonth == 0) {
+            currentMonth = 11
+            currentYear -= 1
+        } else {
+            currentMonth -= 1
+        }
+    }
+
+    val onMonthIncrement: () -> Unit = {
+        if (currentMonth == 11) {
+            currentMonth = 0
+            currentYear += 1
+        } else {
+            currentMonth += 1
+        }
+    }
+
+    val onAddHabitClick: () -> Unit = {
+        showDialog = true
+    }
+
+    val onResetToToday: () -> Unit = {
+        val today = Calendar.getInstance()
+        currentMonth = today.get(Calendar.MONTH)
+        currentYear = today.get(Calendar.YEAR)
+        selectedDate = todayString
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        AppBarComposable(
+            currentMonth = currentMonth,
+            currentYear = currentYear,
+            currentCount = currentCount,
+            canCreateHabit = canCreateHabit,
+            monthYearText = monthYearText,
+            onMenuClick = onMenuClick,
+            onMonthDecrement = onMonthDecrement,
+            onMonthIncrement = onMonthIncrement,
+            onAddHabitClick = onAddHabitClick,
+            onResetToToday = onResetToToday
         )
 
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            CalendarFragment(
+            CalendarComposable(
                 currentMonth = currentMonth,
                 currentYear = currentYear,
                 selectedDate = selectedDate,
@@ -160,7 +176,7 @@ fun HomeFragment(
 
         if (currentCount < 1) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                ListFragment(
+                ListComposable(
                     selectedDate = selectedDate,
                     showStreak = settings.showStreak,
                     animatedIcon = settings.animatedIcon
@@ -177,22 +193,22 @@ fun HomeFragment(
                     if (canCreateHabit) {
                         Box(
                             modifier = Modifier
-                                .size(60.dp)
+                                .size(constants.createHabitButtonBoxSize)
                                 .background(
                                     color = PrimaryGreen,
-                                    shape = RoundedCornerShape(4.dp)
+                                    shape = RoundedCornerShape(constants.createHabitButtonCornerRadius)
                                 )
                                 .clickable { showDialog = true },
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("+", fontSize = 45.sp, color = Color.White)
+                            Text("+", fontSize = constants.createHabitButtonTextSize, color = Color.White)
                         }
-                        Spacer(modifier = Modifier.size(8.dp))
-                        Text("Create New Habit", fontSize = 20.sp)
+                        Spacer(modifier = Modifier.size(constants.spacerSmall))
+                        Text(stringResource(R.string.home_create_new_habit), fontSize = constants.createHabitLabelTextSize)
                     } else {
                         Text(
-                            "No Habits For This Day",
-                            fontSize = 18.sp,
+                            stringResource(R.string.home_no_habits),
+                            fontSize = constants.noHabitsTextSize,
                             color = Color.Gray
                         )
                     }
@@ -200,7 +216,7 @@ fun HomeFragment(
             }
         } else {
             Box {
-                ListFragment(
+                ListComposable(
                     selectedDate = selectedDate,
                     showStreak = settings.showStreak,
                     animatedIcon = settings.animatedIcon
@@ -217,14 +233,14 @@ fun HomeFragment(
 }
 
 @Composable
-fun MoreOptionsItemFragmentMenu(onEdit: () -> Unit, onDelete: () -> Unit){
+fun MoreOptionsItemMenu(onEdit: () -> Unit, onDelete: () -> Unit){
     var expanded by remember { mutableStateOf(false) }
 
     Box {
         IconButton(onClick = { expanded = true }) {
             Icon(
                 imageVector = Icons.Default.MoreVert,
-                contentDescription = "More options"
+                contentDescription = stringResource(R.string.cd_more_options)
             )
         }
         DropdownMenu(
@@ -233,11 +249,11 @@ fun MoreOptionsItemFragmentMenu(onEdit: () -> Unit, onDelete: () -> Unit){
             modifier = Modifier.background(Color.White)
         ) {
             DropdownMenuItem(
-                text = { Text("Edit") },
+                text = { Text(stringResource(R.string.dialog_edit)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit"
+                        contentDescription = stringResource(R.string.cd_edit)
                     )
                 },
                 onClick = {
@@ -246,11 +262,11 @@ fun MoreOptionsItemFragmentMenu(onEdit: () -> Unit, onDelete: () -> Unit){
                 }
             )
             DropdownMenuItem(
-                text = { Text("Delete") },
+                text = { Text(stringResource(R.string.dialog_delete)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete"
+                        contentDescription = stringResource(R.string.cd_delete)
                     )
                 },
                 onClick = {
@@ -270,43 +286,54 @@ fun CreateNewHabitDialog(selectedDate: String, onDismiss: () -> Unit) {
     val currentCount = calendarState.habitsByDate[selectedDate]?.size ?: 0
     val context = LocalContext.current
     val dayCodes = listOf("sun","mon","tue","wed","thu","fri","sat")
-    val dayLabels = listOf("S","M","T","W","T","F","S")
+    val dayLabels = listOf(
+        stringResource(R.string.day_sun),
+        stringResource(R.string.day_mon),
+        stringResource(R.string.day_tue),
+        stringResource(R.string.day_wed),
+        stringResource(R.string.day_thu),
+        stringResource(R.string.day_fri),
+        stringResource(R.string.day_sat)
+    )
     var notificationsEnabled by remember { mutableStateOf(true) }
     val selectedDays = remember { mutableStateListOf(false, false, false, false, false, false, false) }
     var selectedHour by remember { mutableIntStateOf(14) }
     var selectedMinute by remember { mutableIntStateOf(0) }
+    val habitLimit by remember { mutableStateOf(5) }
     val timeText = String.format(Locale.US, "%02d:%02d", selectedHour, selectedMinute)
+
+    val constants = Constants()
 
     Dialog(onDismissRequest = { onDismiss() }) {
         Card(
-            shape = RoundedCornerShape(size = 16.dp),
+            shape = RoundedCornerShape(size = constants.dialogCornerRadius),
             modifier = Modifier
-                .padding(all = 16.dp)
+                .padding(all = constants.dialogPadding)
                 .fillMaxWidth()
-                .heightIn(min = 220.dp),
-            elevation = CardDefaults.cardElevation(8.dp),
+                .heightIn(min = constants.dialogMinHeight),
+            elevation = CardDefaults.cardElevation(constants.dialogCardElevation),
             colors = CardDefaults.cardColors(
                 containerColor = Color.White
             )) {
             Column(
                 modifier = Modifier
-                    .padding(all = 20.dp)
+                    .padding(all = constants.dialogInnerPadding)
                     .background(color = MaterialTheme.colorScheme.surface),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Create New Habit",
+                    text = stringResource(R.string.dialog_create_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.height(height = 8.dp))
+                Spacer(modifier = Modifier.height(height = constants.spacerSmall))
                 OutlinedTextField(
                     value = text,
                     onValueChange = { text = it },
-                    label = { Text(text = "Enter New Habit") },
+                    label = { Text(text = stringResource(R.string.dialog_enter_habit)) },
                     singleLine = true
                 )
-                Spacer(modifier = Modifier.height(height = 16.dp))
+                Spacer(modifier = Modifier.height(height = constants.spacerMedium))
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -319,21 +346,20 @@ fun CreateNewHabitDialog(selectedDate: String, onDismiss: () -> Unit) {
                                     containerColor = if (selectedDays[index]) LightGreen else Color.Transparent
                                 ),
                                 shape = CircleShape,
-                                contentPadding = PaddingValues(all = 0.dp),
-                                modifier = Modifier.size(size = 30.dp),
-                                border = BorderStroke(width = 1.dp, color = Color(color = 0xFFAAAAAA))
+                                modifier = Modifier.size(size = constants.dayButtonSize),
+                                border = BorderStroke(width = constants.dayButtonBorderWidth, color = Color(color = 0xFFAAAAAA))
                             ) {
                                 Text(text = day, color = if (selectedDays[index]) White else DarkGray)
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(height = 16.dp))
+                    Spacer(modifier = Modifier.height(height = constants.spacerMedium))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = "Notifications", style = MaterialTheme.typography.bodyLarge)
+                        Text(text = stringResource(R.string.dialog_notifications), style = MaterialTheme.typography.bodyLarge)
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Switch(
                                 checked = notificationsEnabled,
@@ -346,7 +372,7 @@ fun CreateNewHabitDialog(selectedDate: String, onDismiss: () -> Unit) {
                             Text(
                                 text = timeText,
                                 modifier = Modifier
-                                    .padding(start = 8.dp)
+                                    .padding(start = constants.spacerSmall)
                                     .clickable(enabled = notificationsEnabled) {
                                         TimePickerDialog(
                                             context,
@@ -363,19 +389,19 @@ fun CreateNewHabitDialog(selectedDate: String, onDismiss: () -> Unit) {
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(height = 16.dp))
+                    Spacer(modifier = Modifier.height(height = constants.spacerMedium))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
                     ) {
                         TextButton(onClick = { onDismiss() }) {
-                            Text(text = "Dismiss")
+                            Text(text = stringResource(R.string.dialog_dismiss))
                         }
-                        Spacer(modifier = Modifier.width(width = 8.dp))
+                        Spacer(modifier = Modifier.width(width = constants.spacerSmall))
                         Button(onClick = {
                             if (text.isBlank()) return@Button
-                            if (currentCount >= 5) {
-                                Toast.makeText(context, "Maximum 5 Habits!", Toast.LENGTH_SHORT).show()
+                            if (currentCount >= habitLimit) {
+                                Toast.makeText(context, context.getString(R.string.toast_max_habits), Toast.LENGTH_SHORT).show()
                                 return@Button
                             }
                             val selected = dayCodes.filterIndexed { index, _ -> selectedDays[index] }
@@ -389,7 +415,7 @@ fun CreateNewHabitDialog(selectedDate: String, onDismiss: () -> Unit) {
                             )
                             onDismiss()
                         }) {
-                            Text(text = "Create")
+                            Text(text = stringResource(R.string.dialog_create))
                         }
                     }
                 }
@@ -402,14 +428,23 @@ fun CreateNewHabitDialog(selectedDate: String, onDismiss: () -> Unit) {
 fun EditHabitDialog(habit: Habit, onDismiss: () -> Unit, onConfirm: (String, List<String>, String?, Boolean) -> Unit) {
     var text by remember { mutableStateOf(value = habit.text) }
     var notificationsEnabled by remember { mutableStateOf(habit.notificationsEnabled) }
+    val constants = Constants()
     val dayCodes = listOf("sun","mon","tue","wed","thu","fri","sat")
-    val dayLabels = listOf("S","M","T","W","T","F","S")
+    val dayLabels = listOf(
+        stringResource(R.string.day_sun),
+        stringResource(R.string.day_mon),
+        stringResource(R.string.day_tue),
+        stringResource(R.string.day_wed),
+        stringResource(R.string.day_thu),
+        stringResource(R.string.day_fri),
+        stringResource(R.string.day_sat)
+    )
     val selectedDays = remember { mutableStateListOf<Boolean>().apply { addAll(dayCodes.map { habit.days.contains(it) }) } }
     val context = LocalContext.current
     val initialHourMinute = remember(habit.notifyTime) {
         val parts = habit.notifyTime?.split(":")
-        val h = parts?.getOrNull(0)?.toIntOrNull() ?: 14
-        val m = parts?.getOrNull(1)?.toIntOrNull() ?: 0
+        val h = parts?.getOrNull(0)?.toIntOrNull() ?: constants.notificationDefaultHour
+        val m = parts?.getOrNull(1)?.toIntOrNull() ?: constants.notificationDefaultMinute
         h to m
     }
     var selectedHour by remember { mutableIntStateOf(initialHourMinute.first) }
@@ -418,23 +453,23 @@ fun EditHabitDialog(habit: Habit, onDismiss: () -> Unit, onConfirm: (String, Lis
 
     Dialog(onDismissRequest = { onDismiss() }) {
         Card(
-            shape = RoundedCornerShape(size = 16.dp),
+            shape = RoundedCornerShape(size = constants.dialogCornerRadius),
             modifier = Modifier
-                .padding(all = 16.dp)
+                .padding(all = constants.dialogPadding)
                 .fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(8.dp),
+            elevation = CardDefaults.cardElevation(constants.dialogCardElevation),
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(
                 modifier = Modifier
-                    .padding(all = 20.dp)
+                    .padding(all = constants.dialogInnerPadding)
                     .background(color = MaterialTheme.colorScheme.surface),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "Edit Habit", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(height = 8.dp))
-                OutlinedTextField(value = text, onValueChange = { text = it }, label = { Text(text = "Habit Name") }, singleLine = true)
-                Spacer(modifier = Modifier.height(height = 16.dp))
+                Text(text = stringResource(R.string.dialog_edit_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(height = constants.spacerSmall))
+                OutlinedTextField(value = text, onValueChange = { text = it }, label = { Text(text = stringResource(R.string.dialog_habit_name)) }, singleLine = true)
+                Spacer(modifier = Modifier.height(height = constants.spacerMedium))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                     dayLabels.forEachIndexed { index, day ->
                         OutlinedButton(
@@ -442,14 +477,14 @@ fun EditHabitDialog(habit: Habit, onDismiss: () -> Unit, onConfirm: (String, Lis
                             colors = ButtonDefaults.outlinedButtonColors(containerColor = if (selectedDays[index]) LightGreen else Color.Transparent),
                             shape = CircleShape,
                             contentPadding = PaddingValues(all = 0.dp),
-                            modifier = Modifier.size(size = 30.dp),
-                            border = BorderStroke(width = 1.dp, color = Color(color = 0xFFAAAAAA))
+                            modifier = Modifier.size(size = constants.dayButtonSize),
+                            border = BorderStroke(width = constants.dayButtonBorderWidth, color = Color(color = 0xFFAAAAAA))
                         ) { Text(text = day, color = if (selectedDays[index]) White else DarkGray) }
                     }
                 }
-                Spacer(modifier = Modifier.height(height = 16.dp))
+                Spacer(modifier = Modifier.height(height = constants.spacerMedium))
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(text = "Notifications", style = MaterialTheme.typography.bodyLarge)
+                    Text(text = stringResource(R.string.dialog_notifications), style = MaterialTheme.typography.bodyLarge)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Switch(checked = notificationsEnabled, onCheckedChange = { notificationsEnabled = it },
                             colors = SwitchDefaults.colors(
@@ -460,7 +495,7 @@ fun EditHabitDialog(habit: Habit, onDismiss: () -> Unit, onConfirm: (String, Lis
                         Text(
                             text = timeText,
                             modifier = Modifier
-                                .padding(start = 8.dp)
+                                .padding(start = constants.spacerSmall)
                                 .clickable(enabled = notificationsEnabled) {
                                     TimePickerDialog(
                                         context,
@@ -477,15 +512,15 @@ fun EditHabitDialog(habit: Habit, onDismiss: () -> Unit, onConfirm: (String, Lis
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(height = 16.dp))
+                Spacer(modifier = Modifier.height(height = constants.spacerMedium))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = { onDismiss() }) { Text(text = "Dismiss") }
-                    Spacer(modifier = Modifier.width(width = 8.dp))
+                    TextButton(onClick = { onDismiss() }) { Text(text = stringResource(R.string.dialog_dismiss)) }
+                    Spacer(modifier = Modifier.width(width = constants.spacerSmall))
                     Button(onClick = {
                         val selected = dayCodes.filterIndexed { index, _ -> selectedDays[index] }
                         onConfirm(text, selected, if (notificationsEnabled) timeText else null, notificationsEnabled)
                         onDismiss()
-                    }) { Text(text = "Save") }
+                    }) { Text(text = stringResource(R.string.dialog_save)) }
                 }
             }
         }
@@ -494,34 +529,36 @@ fun EditHabitDialog(habit: Habit, onDismiss: () -> Unit, onConfirm: (String, Lis
 
 @Composable
 fun DeleteHabitDialog(habit: Habit, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    val constants = Constants()
+
     Dialog(onDismissRequest = { onDismiss() }) {
         Card(
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(constants.dialogCornerRadius),
             modifier = Modifier
-                .padding(16.dp)
+                .padding(constants.dialogPadding)
                 .fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(8.dp),
+            elevation = CardDefaults.cardElevation(constants.dialogCardElevation),
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(
                 modifier = Modifier
-                    .padding(20.dp)
+                    .padding(constants.dialogInnerPadding)
                     .background(color = MaterialTheme.colorScheme.surface),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Delete Habit",
+                    text = stringResource(R.string.dialog_delete_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(constants.spacerSmall))
                 Text(
                     text = "${habit.text}?",
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     color = Color.Red
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(constants.spacerMedium))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -533,9 +570,9 @@ fun DeleteHabitDialog(habit: Habit, onDismiss: () -> Unit, onConfirm: () -> Unit
                             contentColor = PrimaryGreen
                         )
                     ) {
-                        Text("Dismiss")
+                        Text(stringResource(R.string.dialog_dismiss))
                     }
-                    Spacer(modifier = Modifier.width(width = 8.dp))
+                    Spacer(modifier = Modifier.width(width = constants.spacerSmall))
                     Button(
                         onClick = {
                             onConfirm()
@@ -546,7 +583,7 @@ fun DeleteHabitDialog(habit: Habit, onDismiss: () -> Unit, onConfirm: () -> Unit
                             contentColor = Color.White
                         )
                     ) {
-                        Text("Delete")
+                        Text(stringResource(R.string.dialog_delete))
                     }
                 }
             }
@@ -556,23 +593,26 @@ fun DeleteHabitDialog(habit: Habit, onDismiss: () -> Unit, onConfirm: () -> Unit
 
 @Composable
 fun AnimatedIcon(state: Boolean = false) {
+    val constants = Constants()
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.fire))
     val progress by animateLottieCompositionAsState(
         composition = composition,
         iterations = LottieConstants.IterateForever,
-        speed = 1F
+        speed = constants.animationSpeed
     )
     LottieAnimation(
         composition = composition,
-        progress = if (state) progress else 0F,
-        modifier = Modifier.size(size = 48.dp)
+        progress = if (state) progress else constants.animationProgress,
+        modifier = Modifier.size(size = constants.animatedIconSize)
     )
 }
 
 @Composable
 fun StreakFragment(streak: Int, state: Boolean, animatedIcon: Boolean = true) {
-    val tintColor = if (streak > 0) Color.Red else Color.Red.copy(alpha = 0.3f)
-    if (animatedIcon && streak == 0) return
+    val constants = Constants()
+    val streakThreshold by remember { mutableStateOf(0) }
+    val tintColor = if (streak > streakThreshold) Color.Red else Color.Red.copy(alpha = constants.streakTintColorAlpha)
+    if (animatedIcon && streak == streakThreshold) return
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         when {
             animatedIcon && streak > 0 -> {
@@ -581,15 +621,15 @@ fun StreakFragment(streak: Int, state: Boolean, animatedIcon: Boolean = true) {
             !animatedIcon -> {
                 Icon(
                     painter = painterResource(id = R.drawable.fire_flame_64),
-                    contentDescription = "Streak",
-                    modifier = Modifier.size(48.dp),
+                    contentDescription = stringResource(R.string.cd_streak),
+                    modifier = Modifier.size(constants.streakIconSize),
                     tint = tintColor
                 )
             }
         }
         Text(
             text = "$streak",
-            fontSize = 15.sp
+            fontSize = constants.streakTextSize
         )
     }
 }

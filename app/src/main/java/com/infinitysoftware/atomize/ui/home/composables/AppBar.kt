@@ -30,11 +30,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.infinitysoftware.atomize.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBar(
+fun AppBarComposable(
     currentMonth: Int,
     currentYear: Int,
     currentCount: Int,
@@ -56,7 +58,7 @@ fun AppBar(
                 IconButton(onClick = onMenuClick) {
                     Icon(
                         imageVector = Icons.Default.Menu,
-                        contentDescription = "Menu"
+                        contentDescription = stringResource(R.string.cd_menu)
                     )
                 }
 
@@ -88,7 +90,7 @@ fun AppBar(
                         IconButton(onClick = onMonthDecrement) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Previous Month"
+                                contentDescription = stringResource(R.string.cd_previous_month)
                             )
                         }
                     }
@@ -104,7 +106,7 @@ fun AppBar(
                         IconButton(onClick = onMonthIncrement) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = "Next Month"
+                                contentDescription = stringResource(R.string.cd_next_month)
                             )
                         }
                     }
@@ -126,7 +128,7 @@ fun AppBar(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
-                                contentDescription = "Add",
+                                contentDescription = stringResource(R.string.cd_add),
                                 tint = if (canCreateHabit && currentCount < 5) Color.Black else Color.Gray
                             )
                         }
