@@ -28,9 +28,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.infinitysoftware.atomize.R
+import com.infinitysoftware.atomize.ui.theme.ActivityLevel1
+import com.infinitysoftware.atomize.ui.theme.ActivityLevel2
+import com.infinitysoftware.atomize.ui.theme.ActivityLevel3
+import com.infinitysoftware.atomize.ui.theme.ActivityLevel4
+import com.infinitysoftware.atomize.ui.theme.ActivityLevel5
+import com.infinitysoftware.atomize.ui.theme.Red
 import com.infinitysoftware.atomize.viewmodel.HabitViewModel
 import java.util.Calendar
 import java.util.Locale
@@ -44,6 +49,7 @@ fun CalendarComposable(
     selectedDate: String,
     onDateSelected: (String) -> Unit
 ) {
+    val constants = Constants()
     val today = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
     val thisMonth = Calendar.getInstance().get(Calendar.MONTH)
     val thisYear = Calendar.getInstance().get(Calendar.YEAR)
@@ -82,39 +88,39 @@ fun CalendarComposable(
     fun getActivityColor(level: Int): Color {
         return when (level) {
             0 -> MaterialTheme.colorScheme.surface
-            1 -> Color(0xFFC8E6C9)
-            2 -> Color(0xFFA5D6A7)
-            3 -> Color(0xFF81C784)
-            4 -> Color(0xFF66BB6A)
-            5 -> MaterialTheme.colorScheme.primary
+            1 -> ActivityLevel1
+            2 -> ActivityLevel2
+            3 -> ActivityLevel3
+            4 -> ActivityLevel4
+            5 -> ActivityLevel5
             else -> MaterialTheme.colorScheme.surface
         }
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.padding(constants.calendarPadding)) {
         Row(modifier = Modifier.fillMaxWidth()) {
             weekDays.forEachIndexed { index, dayName ->
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .aspectRatio(2f),
+                        .aspectRatio(constants.calendarWeekdayAspectRatio),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = dayName,
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
-                        color = if (index == 0) Color.Red else MaterialTheme.colorScheme.onSurface
+                        color = if (index == 0) Red else MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(constants.calendarWeekdaySpacing))
         LazyVerticalGrid(
-            columns = GridCells.Fixed(7),
+            columns = GridCells.Fixed(constants.calendarGridColumns),
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(constants.calendarSpacing),
+            verticalArrangement = Arrangement.spacedBy(constants.calendarSpacing)
         ) {
             items(days) { day ->
                 val isToday =
@@ -131,7 +137,7 @@ fun CalendarComposable(
                 val isSelected = dateString == selectedDate
                 val habitsForDay = calendarState.habitsByDate[dateString] ?: emptyList()
                 val completedCount = habitsForDay.count { it.isChecked }
-                val activityLevel = completedCount.coerceIn(0, 5)
+                val activityLevel = completedCount.coerceIn(constants.minActivityLevel, constants.maxActivityLevel)
                 val dayColor = getActivityColor(activityLevel)
                 val calendar = Calendar.getInstance().apply {
                     if (day.isNotEmpty()) {
@@ -144,13 +150,13 @@ fun CalendarComposable(
 
                 Box(
                     modifier = Modifier
-                        .aspectRatio(1.2f)
-                        .background(dayColor, shape = RoundedCornerShape(4.dp))
+                        .aspectRatio(constants.calendarDayAspectRatio)
+                        .background(dayColor, shape = RoundedCornerShape(constants.calendarCornerRadius))
                         .then(
                             if (isSelected) Modifier.border(
-                                width = 2.dp,
+                                width = constants.calendarSelectedBorderWidth,
                                 color = MaterialTheme.colorScheme.primary,
-                                shape = RoundedCornerShape(4.dp)
+                                shape = RoundedCornerShape(constants.calendarCornerRadius)
                             ) else Modifier
                         )
                         .clickable(enabled = day.isNotEmpty()) {
@@ -161,9 +167,9 @@ fun CalendarComposable(
                     if (isToday) {
                         Box(
                             modifier = Modifier
-                                .size(32.dp)
+                                .size(constants.calendarTodayCircleSize)
                                 .border(
-                                    1.dp,
+                                    constants.calendarTodayBorderWidth,
                                     MaterialTheme.colorScheme.onSurface,
                                     CircleShape
                                 ),
@@ -172,7 +178,7 @@ fun CalendarComposable(
                             Text(
                                 day,
                                 textAlign = TextAlign.Center,
-                                color = if (isSunday) Color.Red else MaterialTheme.colorScheme.onSurface
+                                color = if (isSunday) Red else MaterialTheme.colorScheme.onSurface
                             )
                         }
                     } else {
@@ -180,7 +186,7 @@ fun CalendarComposable(
                             day,
                             textAlign = TextAlign.Center,
                             color = if (isSunday) {
-                                Color.Red
+                                Red
                             } else if (activityLevel == 0) {
                                 MaterialTheme.colorScheme.onSurface
                             } else {
@@ -193,8 +199,8 @@ fun CalendarComposable(
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
-                                .padding(4.dp)
-                                .size(6.dp)
+                                .padding(constants.calendarIndicatorPadding)
+                                .size(constants.calendarIndicatorSize)
                                 .background(
                                     color = MaterialTheme.colorScheme.error,
                                     shape = CircleShape

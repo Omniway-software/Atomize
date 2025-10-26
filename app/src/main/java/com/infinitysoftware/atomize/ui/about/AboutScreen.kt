@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Policy
 import androidx.compose.material.icons.outlined.Animation
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,6 +23,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -32,7 +34,7 @@ import androidx.compose.ui.text.withStyle
 import com.infinitysoftware.atomize.R
 
 @Composable
-fun AboutFragment() {
+fun AboutScreen() {
     val uriHandler = LocalUriHandler.current
     val primaryGreen = MaterialTheme.colorScheme.primary
     val constants = Constants()
@@ -97,6 +99,10 @@ fun AboutFragment() {
 
             Spacer(modifier = Modifier.height(constants.cardSpacing))
 
+            ExpandableTermsAndConditionsCard()
+
+            Spacer(modifier = Modifier.height(constants.cardSpacing))
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -153,11 +159,19 @@ fun AboutFragment() {
 }
 
 @Composable
+fun readRawText(resId: Int): String {
+    val context = LocalContext.current
+    return remember(resId) {
+        context.resources.openRawResource(resId).bufferedReader().use { it.readText() }
+    }
+}
+
+@Composable
 fun ExpandablePrivacyPolicyCard() {
     var expanded by remember { mutableStateOf(false) }
     val constants = Constants()
     val privacyTitle = stringResource(R.string.about_privacy_policy_title)
-    val privacyText = stringResource(R.string.privacy_policy_content)
+    val privacyText = readRawText(R.raw.privacy_policy)
 
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -198,6 +212,62 @@ fun ExpandablePrivacyPolicyCard() {
                 Spacer(modifier = Modifier.height(constants.contentTopSpacing))
 
                 val previewText = if (expanded) privacyText else privacyText.lines().take(constants.privacyPreviewLines).joinToString("\n")
+                Text(
+                    text = previewText,
+                    style = MaterialTheme.typography.bodyMedium.copy(lineHeight = constants.privacyLineHeight),
+                    color = Color.Black
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ExpandableTermsAndConditionsCard() {
+    var expanded by remember { mutableStateOf(false) }
+    val constants = Constants()
+    val termsTitle = stringResource(R.string.about_terms_and_conditions)
+    val termsText = readRawText(R.raw.terms_and_conditions)
+
+    Card(
+        modifier = Modifier.fillMaxWidth()
+            .shadow(
+                elevation = constants.cardElevation,
+                shape = RoundedCornerShape(constants.cardCornerRadius),
+                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = constants.shadowAlpha)
+            )
+            .clickable { expanded = !expanded }
+            .animateContentSize(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        shape = RoundedCornerShape(constants.cardCornerRadius)
+    ) {
+        Row(modifier = Modifier.padding(constants.cardPadding), verticalAlignment = Alignment.Top) {
+            Box(
+                modifier = Modifier.size(constants.iconBoxSize).clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Policy,
+                    contentDescription = termsTitle,
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(constants.iconSize)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(constants.iconSpacing))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = termsTitle,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+
+                Spacer(modifier = Modifier.height(constants.contentTopSpacing))
+
+                val previewText = if (expanded) termsText else termsText.lines().take(constants.privacyPreviewLines).joinToString("\n")
                 Text(
                     text = previewText,
                     style = MaterialTheme.typography.bodyMedium.copy(lineHeight = constants.privacyLineHeight),

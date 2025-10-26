@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,8 +26,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,9 +45,10 @@ import androidx.navigation.compose.rememberNavController
 import com.infinitysoftware.atomize.R
 import com.infinitysoftware.atomize.model.Screens
 import com.infinitysoftware.atomize.model.habit.HabitDatabase
-import com.infinitysoftware.atomize.ui.about.AboutFragment
-import com.infinitysoftware.atomize.ui.home.HomeFragment
-import com.infinitysoftware.atomize.ui.settings.SettingsFragment
+import com.infinitysoftware.atomize.ui.about.AboutScreen
+import com.infinitysoftware.atomize.ui.auth.SignInScreen
+import com.infinitysoftware.atomize.ui.home.HomeScreen
+import com.infinitysoftware.atomize.ui.settings.SettingsScreen
 import com.infinitysoftware.atomize.ui.settings.SettingsViewModel
 import com.infinitysoftware.atomize.ui.settings.SettingsViewModelFactory
 import com.infinitysoftware.atomize.ui.theme.PrimaryGreen
@@ -154,6 +158,71 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                                 unselectedTextColor = Color.Gray
                             )
                         )
+//                        NavigationDrawerItem(
+//                            label = { Text(stringResource(R.string.nav_login), fontWeight = FontWeight.Bold) },
+//                            selected = false,
+//                            shape = RectangleShape,
+//                            icon = { Icon(Icons.Default.Person, contentDescription = stringResource(R.string.cd_login)) },
+//                            onClick = {
+//                                coroutineScope.launch { drawerState.close() }
+//                                if (currentRoute != Screens.Login.screen) {
+//                                    navController.navigate(Screens.Login.screen) {
+//                                        popUpTo(Screens.Home.screen)
+//                                        launchSingleTop = true
+//                                    }
+//                                }
+//                            },
+//                            colors = NavigationDrawerItemDefaults.colors(
+//                                selectedIconColor = PrimaryGreen,
+//                                selectedTextColor = PrimaryGreen,
+//                                unselectedIconColor = Color.Gray,
+//                                unselectedTextColor = Color.Gray
+//                            )
+//                        )
+
+                        var isLoggedIn by remember { mutableStateOf(true) }
+                        val buttonText = if (!isLoggedIn) "Account" else "Logout"
+
+                        NavigationDrawerItem(
+                            label = {
+                                Text(
+                                    text = if (!isLoggedIn) "Account" else "Logout",
+                                    fontWeight = FontWeight.Bold
+                                )
+                            },
+                            selected = false,
+                            shape = RectangleShape,
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = if (!isLoggedIn) "Login" else "Logout"
+                                )
+                            },
+                            onClick = {
+                                coroutineScope.launch { drawerState.close() }
+                                if (!isLoggedIn) {
+                                    if (currentRoute != Screens.Login.screen) {
+                                        navController.navigate(Screens.Login.screen) {
+                                            popUpTo(Screens.Home.screen)
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                } else {
+                                    isLoggedIn = false
+                                    navController.navigate(Screens.Home.screen) {
+                                        popUpTo(Screens.Home.screen) { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            },
+                            colors = NavigationDrawerItemDefaults.colors(
+                                selectedIconColor = PrimaryGreen,
+                                selectedTextColor = PrimaryGreen,
+                                unselectedIconColor = Color.Gray,
+                                unselectedTextColor = Color.Gray
+                            )
+                        )
+
                         NavigationDrawerItem(
                             label = { Text(stringResource(R.string.nav_exit), fontWeight = FontWeight.Bold) },
                             selected = false,
@@ -191,7 +260,7 @@ fun NavDrawer(modifier: Modifier = Modifier) {
             modifier = modifier
         ) {
             composable(route = Screens.Home.screen) {
-                HomeFragment(
+                HomeScreen(
                     navController = navController,
                     settingsViewModel = settingsViewModel,
                     onMenuClick = {
@@ -206,10 +275,13 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                 )
             }
             composable(route = Screens.Settings.screen) {
-                SettingsFragment(viewModel = settingsViewModel)
+                SettingsScreen(viewModel = settingsViewModel)
             }
             composable(route = Screens.About.screen) {
-                AboutFragment()
+                AboutScreen()
+            }
+            composable(route = Screens.Login.screen) {
+                SignInScreen()
             }
         }
     }

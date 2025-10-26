@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,15 +30,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.infinitysoftware.atomize.model.habit.Habit
 import com.infinitysoftware.atomize.ui.home.DeleteHabitDialog
 import com.infinitysoftware.atomize.ui.home.EditHabitDialog
 import com.infinitysoftware.atomize.ui.home.MoreOptionsItemMenu
-import com.infinitysoftware.atomize.ui.home.StreakFragment
+import com.infinitysoftware.atomize.ui.home.Streak
+import com.infinitysoftware.atomize.ui.theme.DarkGray
+import com.infinitysoftware.atomize.ui.theme.LightGray
+import com.infinitysoftware.atomize.ui.theme.MediumGray
 import com.infinitysoftware.atomize.ui.theme.PrimaryGreen
+import com.infinitysoftware.atomize.ui.theme.White
 import com.infinitysoftware.atomize.viewmodel.HabitViewModel
 import java.util.Calendar
 import java.util.Locale
@@ -50,6 +51,7 @@ fun ListComposable(
     showStreak: Boolean = true,
     animatedIcon: Boolean = true
 ) {
+    val constants = Constants()
     val viewModel: HabitViewModel = viewModel()
     val calendarState by viewModel.calendarState.collectAsState()
     viewModel.ensureRecurringHabitsForDate(selectedDate)
@@ -65,7 +67,7 @@ fun ListComposable(
         Column {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(space = 8.dp)
+                verticalArrangement = Arrangement.spacedBy(space = constants.listItemSpacing)
             ) {
                 itemsIndexed(items = habitsForSelectedDate) { index, habit ->
                     ItemComposable(
@@ -100,6 +102,7 @@ fun ItemComposable(
     animatedIcon: Boolean = true,
     onToggle: (Boolean) -> Unit
 ) {
+    val constants = Constants()
     var isChecked by remember(key1 = habit.id, key2 = habit.isChecked) { mutableStateOf(value = habit.isChecked) }
     var showEdit by remember { mutableStateOf(value = false) }
     var showDelete by remember { mutableStateOf(value = false) }
@@ -111,6 +114,7 @@ fun ItemComposable(
     val canCheck = isEditable && !isFuture
     val canEditOrDelete = true
     val currentStreak = habit.streak
+
     if (showEdit) {
         EditHabitDialog(habit = habit, onDismiss = { showEdit = false }) { text, days, time, enabled ->
             viewModel.updateHabitPersisted(habit.id, text, days, time, enabled)
@@ -119,21 +123,23 @@ fun ItemComposable(
     if (showDelete) {
         DeleteHabitDialog(onDismiss = { showDelete = false }, habit = habit, onConfirm = { viewModel.deleteHabit(habit.id) })
     }
+
     val handleToggle: (Boolean) -> Unit = { newValue ->
         if (canCheck) {
             isChecked = newValue
             onToggle(newValue)
         }
     }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(115.dp)
+            .height(constants.listItemHeight)
             .background(
-                color = if (canCheck) Color.White else Color(0xFFF5F5F5),
-                shape = RoundedCornerShape(size = 8.dp)
+                color = if (canCheck) White else LightGray,
+                shape = RoundedCornerShape(size = constants.listItemCornerRadius)
             )
-            .padding(horizontal = 8.dp)
+            .padding(horizontal = constants.listItemHorizontalPadding)
             .clickable(enabled = canCheck) { handleToggle(!isChecked) },
         contentAlignment = Alignment.CenterStart
     ) {
@@ -155,15 +161,16 @@ fun ItemComposable(
                         uncheckedColor = PrimaryGreen,
                         checkmarkColor = Color.White,
                         disabledCheckedColor = Color.LightGray,
-                        disabledUncheckedColor = Color.DarkGray
+                        disabledUncheckedColor = Color.LightGray,
+                        disabledIndeterminateColor = Color.LightGray
                     )
                 )
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(constants.listItemCheckboxSpacing))
                 Text(
                     text = habit.text,
-                    fontSize = 15.sp,
+                    fontSize = constants.listItemTextSize,
                     textDecoration = if (isChecked) TextDecoration.LineThrough else TextDecoration.None,
-                    color = if (isChecked) Color.Gray else if (canCheck) Color.Unspecified else Color.DarkGray,
+                    color = if (isChecked) MediumGray else if (canCheck) Color.Unspecified else DarkGray,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
@@ -173,22 +180,22 @@ fun ItemComposable(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.wrapContentWidth()
             ) {
-                Spacer(modifier = Modifier.width(width = 8.dp))
+                Spacer(modifier = Modifier.width(width = constants.listItemStreakSpacing))
 
                 if (showStreak && currentStreak != 0) {
-                    StreakFragment(
+                    Streak(
                         streak = currentStreak,
                         state = true,
                         animatedIcon = animatedIcon
                     )
                 } else if (showStreak && currentStreak == 0) {
-                    StreakFragment(
+                    Streak(
                         streak = currentStreak,
                         state = true,
                         animatedIcon = animatedIcon
                     )
-
                 }
+
                 if (canEditOrDelete) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         MoreOptionsItemMenu(

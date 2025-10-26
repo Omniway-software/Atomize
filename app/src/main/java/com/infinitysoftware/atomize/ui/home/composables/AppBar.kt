@@ -29,10 +29,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.infinitysoftware.atomize.R
+import com.infinitysoftware.atomize.ui.theme.DisabledTextColor
+import com.infinitysoftware.atomize.ui.theme.LightGray
+import com.infinitysoftware.atomize.ui.theme.MediumGray
+import com.infinitysoftware.atomize.ui.theme.PrimaryTextColor
+import com.infinitysoftware.atomize.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +51,8 @@ fun AppBarComposable(
     onAddHabitClick: () -> Unit,
     onResetToToday: () -> Unit
 ) {
+    val constants = Constants()
+
     TopAppBar(
         title = {
             Row(
@@ -76,15 +81,15 @@ fun AppBarComposable(
                     Text(
                         text = monthYearText,
                         style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(end = 8.dp)
+                        modifier = Modifier.padding(end = constants.spacingSmall)
                     )
                 }
 
                 Row {
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
-                            .background(Color.White, RoundedCornerShape(4.dp)),
+                            .size(constants.iconButtonSize)
+                            .background(White, RoundedCornerShape(constants.buttonCornerRadius)),
                         contentAlignment = Alignment.Center
                     ) {
                         IconButton(onClick = onMonthDecrement) {
@@ -95,12 +100,12 @@ fun AppBarComposable(
                         }
                     }
 
-                    Spacer(Modifier.width(width = 8.dp))
+                    Spacer(Modifier.width(width = constants.spacingSmall))
 
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
-                            .background(Color.White, RoundedCornerShape(4.dp)),
+                            .size(constants.iconButtonSize)
+                            .background(White, RoundedCornerShape(constants.buttonCornerRadius)),
                         contentAlignment = Alignment.Center
                     ) {
                         IconButton(onClick = onMonthIncrement) {
@@ -111,37 +116,43 @@ fun AppBarComposable(
                         }
                     }
 
-                    Spacer(Modifier.width(width = 8.dp))
+                    Spacer(Modifier.width(width = constants.spacingSmall))
 
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(constants.iconButtonSize)
                             .background(
-                                color = if (canCreateHabit && currentCount < 5) Color.White else Color(0xFFDDDDDD),
-                                shape = RoundedCornerShape(4.dp)
+                                color = if (canCreateHabit && currentCount < constants.maxHabitCount)
+                                    White
+                                else
+                                    LightGray,
+                                shape = RoundedCornerShape(constants.buttonCornerRadius)
                             ),
                         contentAlignment = Alignment.Center
                     ) {
                         IconButton(
-                            onClick = { if (canCreateHabit && currentCount < 5) onAddHabitClick() },
+                            onClick = { if (canCreateHabit && currentCount < constants.maxHabitCount) onAddHabitClick() },
                             enabled = canCreateHabit
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = stringResource(R.string.cd_add),
-                                tint = if (canCreateHabit && currentCount < 5) Color.Black else Color.Gray
+                                tint = if (canCreateHabit && currentCount < constants.maxHabitCount)
+                                    PrimaryTextColor
+                                else
+                                    MediumGray
                             )
                         }
                     }
-                    Spacer(Modifier.width(width = 8.dp))
+                    Spacer(Modifier.width(width = constants.spacingSmall))
                 }
             }
         },
-        windowInsets = WindowInsets(left = 0.dp),
+        windowInsets = WindowInsets(left = constants.windowInsetLeft),
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0xFFEEEEEE),
-            titleContentColor = Color.Black,
-            navigationIconContentColor = Color(0xFFDDDDDD)
+            containerColor = LightGray,
+            titleContentColor = PrimaryTextColor,
+            navigationIconContentColor = DisabledTextColor
         )
     )
 }

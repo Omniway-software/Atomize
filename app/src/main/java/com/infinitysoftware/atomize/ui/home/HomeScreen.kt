@@ -83,7 +83,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeFragment(
+fun HomeScreen(
     navController: NavHostController,
     settingsViewModel: SettingsViewModel,
     onMenuClick: () -> Unit = {}
@@ -605,7 +605,7 @@ fun AnimatedIcon(state: Boolean = false) {
 }
 
 @Composable
-fun StreakFragment(streak: Int, state: Boolean, animatedIcon: Boolean = true) {
+fun Streak(streak: Int, state: Boolean, animatedIcon: Boolean = true) {
     val constants = Constants()
     val streakThreshold by remember { mutableIntStateOf(0) }
     val tintColor = if (streak > streakThreshold) Color.Red else Color.Red.copy(alpha = constants.streakTintColorAlpha)

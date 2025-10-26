@@ -5,6 +5,8 @@
     <string name="nav_home">Home</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_about">About</string>
+    <string name="nav_signin">Sign In</string>
+    <string name="nav_login">Log In</string>
     <string name="nav_exit">Exit</string>
     <string name="nav_version">Version: %s</string>
 
@@ -12,6 +14,8 @@
     <string name="cd_home">Home</string>
     <string name="cd_settings">Settings</string>
     <string name="cd_about">About</string>
+    <string name="cd_signin">Sign In</string>
+    <string name="cd_login">Log In</string>
     <string name="cd_exit">Exit</string>
     <string name="cd_more_options">More options</string>
     <string name="cd_edit">Edit</string>
@@ -83,13 +87,11 @@
     <string name="about_licensed_under">, licensed under the </string>
     <string name="about_lottie_license">Lottie License</string>
     <string name="about_privacy_policy_title">Privacy Policy</string>
+    <string name="about_terms_and_conditions">Terms and Conditions</string>
 
     <!-- URLs -->
     <string name="url_author">https://lottiefiles.com/twlt1o42jpm59mva</string>
     <string name="url_lottie_files">https://lottiefiles.com</string>
     <string name="url_lottie_license">https://lottiefiles.com/page/license</string>
     <string name="url_contact_email">dusanrosic25.06.1997@gmail.com</string>
-
-    <!-- Privacy Policy Content -->
-    <string name="privacy_policy_content">Privacy Policy\n\n1. Introduction\nWelcome to Atomize app.\nWe value your privacy and are committed to protecting your personal data.\nThis Privacy Policy explains how we collect, use, and protect your information when you use our Android application.\n\nBy using the App, you agree to this Privacy Policy.\nIf you do not agree, please stop using the App immediately.\n\n2. Information We Collect\na) Account Information\nWhen you register or log in with email and password, we collect:\n- Your email address\n- Encrypted password (we never store plain-text passwords)\nThis data is used solely to create and manage your account securely.\n\nb) Analytics Data\nWe use Firebase Analytics to collect anonymous usage data, such as:\n- Which features are used most often\n- Device type and operating system\n- App version and basic technical metrics\nThis helps us improve performance and user experience.\n\nc) Crash Reports\nWe use Firebase Crashlytics to automatically collect crash logs and error reports.\nThese reports may include technical details such as:\n- Device model and OS version\n- Time and type of crash\n- Anonymous session identifiers\nThis data is used only for debugging and improving app stability.\n\nd) Payment Information\nAll subscriptions and payments are processed through the Google Play Store.\nWe do not collect or store your credit card or payment information.\nPlease refer to Google\'s Privacy Policy for more information about payment processing.\n\n3. How We Use Your Information\nWe use collected data to:\n- Authenticate and manage user accounts\n- Improve app features and functionality\n- Analyze usage patterns and performance\n- Fix bugs, crashes, and technical issues\n- Provide customer support if you contact us\nWe do not sell, rent, or trade your personal data to third parties.\n\n4. Data Storage and Security\nAll user data is stored securely using Firebase (Google Cloud) infrastructure.\nPasswords are encrypted and cannot be read by us.\nWe take reasonable measures to protect your data against unauthorized access, loss, or misuse.\nHowever, no system is 100% secure. You use the App at your own risk.\n\n5. Data Retention\nWe keep your data only as long as necessary to provide our services or as required by law.\nIf you delete your account, your personal data will be permanently removed from our systems within a reasonable time frame.\n\n6. Your Rights\nYou have the right to:\n- Access the data we store about you\n- Request deletion of your account and personal data\n- Withdraw your consent at any time (by deleting your account)\nTo exercise these rights, please contact us at dusanrosic25.06.1997@gmail.com.\n\n7. Third-Party Services\nOur App relies on the following third-party services:\n- Firebase Analytics – for anonymous usage statistics\n- Firebase Crashlytics – for crash reporting\n- Firebase Authentication – for secure login\n- Google Play Billing – for subscription management\nEach service has its own privacy policy; we encourage you to review them.\n\n8. Children\'s Privacy\nOur App is not intended for children under the age of 16.\nWe do not knowingly collect personal information from minors.\nIf you believe a child has provided us with personal data, please contact us so we can delete it.\n\n9. Changes to This Policy\nWe may update this Privacy Policy from time to time.\nWhen we do, we will update the \"Last Updated\" date and publish the new version inside the App.\nYour continued use of the App means you accept these updates.\n\n10. Contact Us\nIf you have any questions or requests regarding this Privacy Policy, please contact us:\n📧 dusanrosic25.06.1997@gmail.com\n\nLast updated: 25/10/2025</string>
 </resources>

@@ -16,12 +16,16 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 import com.infinitysoftware.atomize.R
+import com.infinitysoftware.atomize.ui.auth.Constants
 import com.infinitysoftware.atomize.ui.theme.PrimaryGreen
 
+// TODO REFACTOR STRINGS AND CONSTANTS
+
 @Composable
-fun SignInFragment(navController: NavHostController){
+fun SignInScreen() {
+    val constants = Constants()
+
     var emailTextInput by remember { mutableStateOf("") }
     var passwordTextInput by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
