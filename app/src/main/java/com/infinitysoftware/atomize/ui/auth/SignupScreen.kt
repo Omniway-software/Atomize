@@ -1,29 +1,39 @@
 package com.infinitysoftware.atomize.ui.auth
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.infinitysoftware.atomize.R
-import com.infinitysoftware.atomize.ui.auth.Constants
 import com.infinitysoftware.atomize.ui.theme.PrimaryGreen
 
-// TODO REFACTOR STRINGS AND CONSTANTS
-
 @Composable
-fun SignInScreen() {
+fun SignupScreen() {
     val constants = Constants()
 
     var emailTextInput by remember { mutableStateOf("") }
@@ -33,27 +43,27 @@ fun SignInScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(32.dp),
+            .padding(all = constants.signinGlobalPadding),
         contentAlignment = Alignment.Center
     ) {
         Column {
             Text(
                 text = stringResource(id = R.string.sign_in_title),
-                fontSize = 32.sp
+                fontSize = constants.signinTitleFontSize
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(constants.signinSpacerDefaultWidth))
             Text(
                 text = stringResource(id = R.string.sign_in_subtitle),
-                fontSize = 20.sp
+                fontSize = constants.signinSubtitleFontSize
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(constants.signinSpacerLargeDefaultWidth))
 
             OutlinedTextField(
                 value = emailTextInput,
                 onValueChange = { emailTextInput = it },
                 label = { Text(text = stringResource(id = R.string.email_label)) },
                 singleLine = true,
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(constants.signinEntryFieldDefaultShape),
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Email,
@@ -63,14 +73,14 @@ fun SignInScreen() {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(constants.signinSpacerDefaultWidth))
 
             OutlinedTextField(
                 value = passwordTextInput,
                 onValueChange = { passwordTextInput = it },
                 label = { Text(text = stringResource(id = R.string.password_label)) },
                 singleLine = true,
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(constants.signinEntryFieldDefaultShape),
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Lock,
@@ -91,7 +101,7 @@ fun SignInScreen() {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(constants.signinSpacerLargeDefaultWidth))
 
             Button(
                 modifier = Modifier.fillMaxWidth(),
