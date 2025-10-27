@@ -30,12 +30,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import com.infinitysoftware.atomize.ui.theme.*
 import com.infinitysoftware.atomize.R
-import com.infinitysoftware.atomize.ui.theme.DisabledTextColor
-import com.infinitysoftware.atomize.ui.theme.LightGray
-import com.infinitysoftware.atomize.ui.theme.MediumGray
-import com.infinitysoftware.atomize.ui.theme.PrimaryTextColor
-import com.infinitysoftware.atomize.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,11 +56,18 @@ fun AppBarComposable(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onMenuClick) {
-                    Icon(
-                        imageVector = Icons.Default.Menu,
-                        contentDescription = stringResource(R.string.cd_menu)
-                    )
+                Box(
+                    modifier = Modifier
+                        .size(constants.iconButtonSize)
+                        .background(White, RoundedCornerShape(constants.buttonCornerRadius)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    IconButton(onClick = onMenuClick) {
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = stringResource(R.string.cd_menu)
+                        )
+                    }
                 }
 
                 Row(
@@ -125,7 +128,7 @@ fun AppBarComposable(
                                 color = if (canCreateHabit && currentCount < constants.maxHabitCount)
                                     White
                                 else
-                                    LightGray,
+                                    White,
                                 shape = RoundedCornerShape(constants.buttonCornerRadius)
                             ),
                         contentAlignment = Alignment.Center

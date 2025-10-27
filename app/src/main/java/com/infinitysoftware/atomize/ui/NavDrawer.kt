@@ -1,6 +1,5 @@
 package com.infinitysoftware.atomize.ui
 
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,10 +8,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.Login
+import androidx.compose.material.icons.filled.AppRegistration
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Login
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,13 +27,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -46,12 +44,15 @@ import com.infinitysoftware.atomize.R
 import com.infinitysoftware.atomize.model.Screens
 import com.infinitysoftware.atomize.model.habit.HabitDatabase
 import com.infinitysoftware.atomize.ui.about.AboutScreen
-import com.infinitysoftware.atomize.ui.auth.SignInScreen
+import com.infinitysoftware.atomize.ui.auth.LoginScreen
+import com.infinitysoftware.atomize.ui.auth.SignupScreen
 import com.infinitysoftware.atomize.ui.home.HomeScreen
 import com.infinitysoftware.atomize.ui.settings.SettingsScreen
 import com.infinitysoftware.atomize.ui.settings.SettingsViewModel
 import com.infinitysoftware.atomize.ui.settings.SettingsViewModelFactory
+import com.infinitysoftware.atomize.ui.theme.MediumGray
 import com.infinitysoftware.atomize.ui.theme.PrimaryGreen
+import com.infinitysoftware.atomize.ui.theme.White
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,7 +89,7 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                             Text(
                                 text = stringResource(id = R.string.app_name),
                                 style = MaterialTheme.typography.titleLarge,
-                                color = Color.White
+                                color = White
                             )
                         }
                         NavigationDrawerItem(
@@ -110,8 +111,8 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                                 selectedContainerColor = PrimaryGreen.copy(alpha = constants.navDrawerSelectedItemAlpha),
                                 selectedIconColor = PrimaryGreen,
                                 selectedTextColor = PrimaryGreen,
-                                unselectedIconColor = Color.Gray,
-                                unselectedTextColor = Color.Gray
+                                unselectedIconColor = MediumGray,
+                                unselectedTextColor = MediumGray
                             )
                         )
                         NavigationDrawerItem(
@@ -132,8 +133,8 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                                 selectedContainerColor = PrimaryGreen.copy(alpha = constants.navDrawerSelectedItemAlpha),
                                 selectedIconColor = PrimaryGreen,
                                 selectedTextColor = PrimaryGreen,
-                                unselectedIconColor = Color.Gray,
-                                unselectedTextColor = Color.Gray
+                                unselectedIconColor = MediumGray,
+                                unselectedTextColor = MediumGray
                             )
                         )
                         NavigationDrawerItem(
@@ -154,88 +155,52 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                                 selectedContainerColor = PrimaryGreen.copy(alpha = constants.navDrawerSelectedItemAlpha),
                                 selectedIconColor = PrimaryGreen,
                                 selectedTextColor = PrimaryGreen,
-                                unselectedIconColor = Color.Gray,
-                                unselectedTextColor = Color.Gray
+                                unselectedIconColor = MediumGray,
+                                unselectedTextColor = MediumGray
                             )
                         )
-//                        NavigationDrawerItem(
-//                            label = { Text(stringResource(R.string.nav_login), fontWeight = FontWeight.Bold) },
-//                            selected = false,
-//                            shape = RectangleShape,
-//                            icon = { Icon(Icons.Default.Person, contentDescription = stringResource(R.string.cd_login)) },
-//                            onClick = {
-//                                coroutineScope.launch { drawerState.close() }
-//                                if (currentRoute != Screens.Login.screen) {
-//                                    navController.navigate(Screens.Login.screen) {
-//                                        popUpTo(Screens.Home.screen)
-//                                        launchSingleTop = true
-//                                    }
-//                                }
-//                            },
-//                            colors = NavigationDrawerItemDefaults.colors(
-//                                selectedIconColor = PrimaryGreen,
-//                                selectedTextColor = PrimaryGreen,
-//                                unselectedIconColor = Color.Gray,
-//                                unselectedTextColor = Color.Gray
-//                            )
-//                        )
-
-                        var isLoggedIn by remember { mutableStateOf(true) }
-                        val buttonText = if (!isLoggedIn) "Account" else "Logout"
-
                         NavigationDrawerItem(
-                            label = {
-                                Text(
-                                    text = if (!isLoggedIn) "Account" else "Logout",
-                                    fontWeight = FontWeight.Bold
-                                )
-                            },
-                            selected = false,
+                            label = { Text(stringResource(R.string.nav_login), fontWeight = FontWeight.Bold) },
+                            selected = currentRoute == Screens.Login.screen,
                             shape = RectangleShape,
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = if (!isLoggedIn) "Login" else "Logout"
-                                )
-                            },
+                            icon = { Icon(Icons.Default.Login, contentDescription = stringResource(R.string.cd_login)) },
                             onClick = {
                                 coroutineScope.launch { drawerState.close() }
-                                if (!isLoggedIn) {
-                                    if (currentRoute != Screens.Login.screen) {
-                                        navController.navigate(Screens.Login.screen) {
-                                            popUpTo(Screens.Home.screen)
-                                            launchSingleTop = true
-                                        }
-                                    }
-                                } else {
-                                    isLoggedIn = false
-                                    navController.navigate(Screens.Home.screen) {
-                                        popUpTo(Screens.Home.screen) { inclusive = true }
+                                if (currentRoute != Screens.Login.screen) {
+                                    navController.navigate(Screens.Login.screen) {
+                                        popUpTo(Screens.Home.screen)
                                         launchSingleTop = true
                                     }
                                 }
                             },
                             colors = NavigationDrawerItemDefaults.colors(
+                                selectedContainerColor = PrimaryGreen.copy(alpha = constants.navDrawerSelectedItemAlpha),
                                 selectedIconColor = PrimaryGreen,
                                 selectedTextColor = PrimaryGreen,
-                                unselectedIconColor = Color.Gray,
-                                unselectedTextColor = Color.Gray
+                                unselectedIconColor = MediumGray,
+                                unselectedTextColor = MediumGray
                             )
                         )
-
                         NavigationDrawerItem(
-                            label = { Text(stringResource(R.string.nav_exit), fontWeight = FontWeight.Bold) },
-                            selected = false,
+                            label = { Text(stringResource(R.string.nav_signup), fontWeight = FontWeight.Bold) },
+                            selected = currentRoute == Screens.Signup.screen,
                             shape = RectangleShape,
-                            icon = { Icon(Icons.Default.ExitToApp, contentDescription = stringResource(R.string.cd_exit)) },
+                            icon = { Icon(Icons.Default.PersonAdd, contentDescription = stringResource(R.string.cd_signup)) },
                             onClick = {
                                 coroutineScope.launch { drawerState.close() }
-                                val activity = (context as? ComponentActivity)
-                                activity?.finishAffinity()
+                                if (currentRoute != Screens.Signup.screen) {
+                                    navController.navigate(Screens.Signup.screen) {
+                                        popUpTo(Screens.Home.screen)
+                                        launchSingleTop = true
+                                    }
+                                }
                             },
                             colors = NavigationDrawerItemDefaults.colors(
-                                unselectedIconColor = Color.Red,
-                                unselectedTextColor = Color.Red
+                                selectedContainerColor = PrimaryGreen.copy(alpha = constants.navDrawerSelectedItemAlpha),
+                                selectedIconColor = PrimaryGreen,
+                                selectedTextColor = PrimaryGreen,
+                                unselectedIconColor = MediumGray,
+                                unselectedTextColor = MediumGray
                             )
                         )
                     }
@@ -247,7 +212,7 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                         Text(
                             text = stringResource(R.string.nav_version, com.infinitysoftware.atomize.BuildConfig.VERSION_NAME),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray
+                            color = MediumGray
                         )
                     }
                 }
@@ -281,7 +246,10 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                 AboutScreen()
             }
             composable(route = Screens.Login.screen) {
-                SignInScreen()
+                LoginScreen(navController)
+            }
+            composable(route = Screens.Signup.screen) {
+                SignupScreen(navController)
             }
         }
     }

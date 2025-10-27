@@ -25,16 +25,11 @@ class MainActivity : ComponentActivity() {
             AtomizeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavDrawer(modifier = Modifier.padding(innerPadding))
-//                     SignInFragment() // NE MORA SA POCETAK
                 }
             }
         }
     }
 }
-
-// TODO KO SE ULOGUJE IMA FIRESTORE 10
-// AKO SE REAZLIKUJE TRENUTNO SA ONIM NA FIRESTOREU
-//
 
 class AuthenticationManager {
 

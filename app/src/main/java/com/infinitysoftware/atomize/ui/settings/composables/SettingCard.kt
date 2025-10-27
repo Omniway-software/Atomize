@@ -25,10 +25,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import com.infinitysoftware.atomize.ui.settings.Constants
+import com.infinitysoftware.atomize.ui.theme.*
 
 
 @Composable
@@ -87,13 +87,13 @@ fun SettingCard(
                         text = title,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = Black
                     )
                     Spacer(modifier = Modifier.height(constants.descriptionSpacing))
                     Text(
                         text = description,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Black.copy(alpha = constants.descriptionAlpha),
+                        color = Black.copy(alpha = constants.descriptionAlpha),
                         lineHeight = constants.descriptionLineHeight
                     )
                 }
@@ -105,8 +105,8 @@ fun SettingCard(
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = MaterialTheme.colorScheme.primary,
                     checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = constants.trackAlpha),
-                    uncheckedThumbColor = Color.Gray,
-                    uncheckedTrackColor = Color.Gray.copy(alpha = constants.uncheckedTrackAlpha)
+                    uncheckedThumbColor = MediumGray,
+                    uncheckedTrackColor = MediumGray.copy(alpha = constants.uncheckedTrackAlpha)
                 )
             )
         }

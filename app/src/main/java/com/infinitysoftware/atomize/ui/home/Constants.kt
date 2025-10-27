@@ -7,7 +7,6 @@ class Constants {
     // Box sizes
     val createHabitButtonBoxSize = 60.dp
     val animatedIconSize = 48.dp
-    val streakIconSize = 48.dp
     val dayButtonSize = 30.dp
 
     // Spacing
@@ -23,13 +22,9 @@ class Constants {
     val createHabitButtonTextSize = 45.sp
     val createHabitLabelTextSize = 20.sp
     val noHabitsTextSize = 18.sp
-    val streakTextSize = 15.sp
 
     // Border
     val dayButtonBorderWidth = 1.dp
-
-    // Alpha
-    val streakTintColorAlpha = 0.3f
 
     // Animation
     val animationSpeed = 1f

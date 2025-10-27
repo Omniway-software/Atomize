@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import com.infinitysoftware.atomize.ui.about.Constants
+import com.infinitysoftware.atomize.ui.theme.Black
 
 @Composable
 fun UnifiedInfoCard(
@@ -69,14 +70,14 @@ fun UnifiedInfoCard(
                     text = title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = Black
                 )
                 Spacer(modifier = Modifier.height(constants.contentTopSpacing))
                 Text(
                     text = content,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
-                    color = Color.Black,
+                    color = Black,
                     lineHeight = constants.creditsLineHeight
                 )
             }

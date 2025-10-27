@@ -25,6 +25,7 @@ val LightGray = Color(color = 0xFFF5F5F5)
 val MediumGray = Color(color = 0xFF9E9E9E)
 val DarkGray = Color(color = 0xFF424242)
 val White = Color(color = 0xFFFFFFFF)
+val Black = Color(color = 0XFF222222)
 
 // Text Colors.
 val PrimaryTextColor = Color(color = 0xFF212121)
@@ -38,11 +39,3 @@ val ActivityLevel2 = Color(0xFFA5D6A7)
 val ActivityLevel3 = Color(0xFF81C784)
 val ActivityLevel4 = Color(0xFF66BB6A)
 val ActivityLevel5 = PrimaryGreen
-
-// Mapping Functionalities.
-val CalendarActiveDay = PrimaryGreen
-val CalendarInactiveDay = LightGreen
-val TaskCompleted = PrimaryGreen
-val TaskIncomplete = MediumGray
-val FlameIcon = Orange
-val FlameNumber = Red

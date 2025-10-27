@@ -30,12 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.infinitysoftware.atomize.R
-import com.infinitysoftware.atomize.ui.theme.ActivityLevel1
-import com.infinitysoftware.atomize.ui.theme.ActivityLevel2
-import com.infinitysoftware.atomize.ui.theme.ActivityLevel3
-import com.infinitysoftware.atomize.ui.theme.ActivityLevel4
-import com.infinitysoftware.atomize.ui.theme.ActivityLevel5
-import com.infinitysoftware.atomize.ui.theme.Red
+import com.infinitysoftware.atomize.ui.theme.*
 import com.infinitysoftware.atomize.viewmodel.HabitViewModel
 import java.util.Calendar
 import java.util.Locale
@@ -110,7 +105,7 @@ fun CalendarComposable(
                         text = dayName,
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
-                        color = if (index == 0) Red else MaterialTheme.colorScheme.onSurface
+                        color = if (index == 0) Orange else MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -178,7 +173,7 @@ fun CalendarComposable(
                             Text(
                                 day,
                                 textAlign = TextAlign.Center,
-                                color = if (isSunday) Red else MaterialTheme.colorScheme.onSurface
+                                color = if (isSunday) Orange else MaterialTheme.colorScheme.onSurface
                             )
                         }
                     } else {
@@ -186,7 +181,7 @@ fun CalendarComposable(
                             day,
                             textAlign = TextAlign.Center,
                             color = if (isSunday) {
-                                Red
+                                Orange
                             } else if (activityLevel == 0) {
                                 MaterialTheme.colorScheme.onSurface
                             } else {
@@ -202,7 +197,7 @@ fun CalendarComposable(
                                 .padding(constants.calendarIndicatorPadding)
                                 .size(constants.calendarIndicatorSize)
                                 .background(
-                                    color = MaterialTheme.colorScheme.error,
+                                    color = Orange,
                                     shape = CircleShape
                                 )
                         )

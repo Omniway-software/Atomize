@@ -23,12 +23,13 @@ class Constants {
     val calendarIndicatorPadding = 4.dp
     val calendarCornerRadius = 4.dp
 
+    // Streak
+    val streakTintColorAlpha = 0.3f
+    val streakTextSize = 15.sp
+    val streakIconSize = 48.dp
     val minActivityLevel = 0
     val maxActivityLevel = 5
     val calendarGridColumns = 7
-
-    // Limits
-    val maxHabitCount = 5
 
     // List Item Dimensions
     val listItemHeight = 115.dp
@@ -38,4 +39,7 @@ class Constants {
     val listItemCheckboxSpacing = 16.dp
     val listItemStreakSpacing = 8.dp
     val listItemTextSize = 15.sp
+
+    // Limits
+    val maxHabitCount = 5
 }

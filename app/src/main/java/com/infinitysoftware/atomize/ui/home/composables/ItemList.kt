@@ -32,15 +32,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.infinitysoftware.atomize.model.habit.Habit
-import com.infinitysoftware.atomize.ui.home.DeleteHabitDialog
-import com.infinitysoftware.atomize.ui.home.EditHabitDialog
-import com.infinitysoftware.atomize.ui.home.MoreOptionsItemMenu
-import com.infinitysoftware.atomize.ui.home.Streak
-import com.infinitysoftware.atomize.ui.theme.DarkGray
-import com.infinitysoftware.atomize.ui.theme.LightGray
-import com.infinitysoftware.atomize.ui.theme.MediumGray
-import com.infinitysoftware.atomize.ui.theme.PrimaryGreen
-import com.infinitysoftware.atomize.ui.theme.White
+import com.infinitysoftware.atomize.ui.theme.*
 import com.infinitysoftware.atomize.viewmodel.HabitViewModel
 import java.util.Calendar
 import java.util.Locale
@@ -159,10 +151,10 @@ fun ItemComposable(
                     colors = CheckboxDefaults.colors(
                         checkedColor = PrimaryGreen,
                         uncheckedColor = PrimaryGreen,
-                        checkmarkColor = Color.White,
-                        disabledCheckedColor = Color.LightGray,
-                        disabledUncheckedColor = Color.LightGray,
-                        disabledIndeterminateColor = Color.LightGray
+                        checkmarkColor = White,
+                        disabledCheckedColor = LightGray,
+                        disabledUncheckedColor = LightGray,
+                        disabledIndeterminateColor = LightGray
                     )
                 )
                 Spacer(modifier = Modifier.width(constants.listItemCheckboxSpacing))
