@@ -1,5 +1,6 @@
 package com.infinitysoftware.atomize.ui.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,16 +38,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.navigation.NavController
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.LocalContext
 import com.infinitysoftware.atomize.R
 import com.infinitysoftware.atomize.ui.theme.*
+import com.infinitysoftware.atomize.viewmodel.AuthState
+import com.infinitysoftware.atomize.viewmodel.AuthViewModel
 
 @Composable
-fun SignupScreen(navController: NavController) {
+fun SignupScreen(navController: NavController, authViewModel: AuthViewModel) {
     val constants = Constants()
 
-    var emailTextInput by remember { mutableStateOf("") }
-    var passwordTextInput by remember { mutableStateOf("") }
-    var showPassword by remember { mutableStateOf(false) }
+    var email by remember { mutableStateOf(value = "") }
+    var password by remember { mutableStateOf(value = "") }
+    var showPassword by remember { mutableStateOf(value = false) }
+
+    val context = LocalContext.current
+
+    val authState = authViewModel.authState.observeAsState()
+
+    LaunchedEffect(authState.value) {
+        when (authState.value) {
+            is AuthState.Authenticated -> navController.navigate("home")
+            is AuthState.Error -> Toast.makeText(context, (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
+            else -> Unit
+        }
+    }
 
     Box(modifier = Modifier
         .fillMaxSize()
@@ -91,8 +109,8 @@ fun SignupScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(constants.authSpacerLargeDefaultWidth))
 
                 OutlinedTextField(
-                    value = emailTextInput,
-                    onValueChange = { emailTextInput = it },
+                    value = email,
+                    onValueChange = { email = it },
                     label = { Text(text = stringResource(id = R.string.email_label)) },
                     singleLine = true,
                     shape = RoundedCornerShape(constants.authEntryFieldDefaultShape),
@@ -108,8 +126,8 @@ fun SignupScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(constants.authSpacerDefaultWidth))
 
                 OutlinedTextField(
-                    value = passwordTextInput,
-                    onValueChange = { passwordTextInput = it },
+                    value = password,
+                    onValueChange = { password = it },
                     label = { Text(text = stringResource(id = R.string.password_label)) },
                     singleLine = true,
                     shape = RoundedCornerShape(constants.authEntryFieldDefaultShape),
@@ -137,7 +155,11 @@ fun SignupScreen(navController: NavController) {
 
                 Button(
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = { /* TODO: Handle sign-in */ },
+                    onClick = {
+                        authViewModel.signup(email, password)
+                        email = ""
+                        password = "" },
+                    enabled = authState.value != AuthState.Loading,
                     colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen)
                 ) {
                     Text(text = stringResource(id = R.string.sign_up_button))

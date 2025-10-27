@@ -101,6 +101,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.4")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.4")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
+    implementation("androidx.compose.runtime:runtime-livedata")
 
     // Navigation Component for Compose
     implementation("androidx.navigation:navigation-compose:2.9.5")

@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Login
-import androidx.compose.material.icons.filled.AppRegistration
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Login
@@ -53,6 +51,7 @@ import com.infinitysoftware.atomize.ui.settings.SettingsViewModelFactory
 import com.infinitysoftware.atomize.ui.theme.MediumGray
 import com.infinitysoftware.atomize.ui.theme.PrimaryGreen
 import com.infinitysoftware.atomize.ui.theme.White
+import com.infinitysoftware.atomize.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,6 +68,7 @@ fun NavDrawer(modifier: Modifier = Modifier) {
     val settingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(settingsDao)
     )
+    val authViewModel: AuthViewModel = viewModel()
 
     val constants = Constants()
 
@@ -228,6 +228,7 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                 HomeScreen(
                     navController = navController,
                     settingsViewModel = settingsViewModel,
+                    authViewModel = authViewModel,
                     onMenuClick = {
                         coroutineScope.launch {
                             if (drawerState.isClosed) {
@@ -246,10 +247,10 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                 AboutScreen()
             }
             composable(route = Screens.Login.screen) {
-                LoginScreen(navController)
+                LoginScreen(navController, authViewModel)
             }
             composable(route = Screens.Signup.screen) {
-                SignupScreen(navController)
+                SignupScreen(navController, authViewModel)
             }
         }
     }
