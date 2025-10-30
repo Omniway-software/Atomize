@@ -8,6 +8,7 @@ class Constants {
     val iconButtonSize = 40.dp
     val buttonCornerRadius = 4.dp
     val spacingSmall = 8.dp
+    val spacingMedium = 16.dp
     val windowInsetLeft = 0.dp
 
     // Calendar Dimensions

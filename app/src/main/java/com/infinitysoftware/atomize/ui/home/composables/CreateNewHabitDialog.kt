@@ -73,10 +73,10 @@ fun CreateNewHabitDialog(selectedDate: String, onDismiss: () -> Unit) {
     val selectedDays = remember { mutableStateListOf(false, false, false, false, false, false, false) }
     var selectedHour by remember { mutableIntStateOf(14) }
     var selectedMinute by remember { mutableIntStateOf(0) }
-    val habitLimit by remember { mutableIntStateOf(5) }
-    val timeText = String.format(Locale.US, "%02d:%02d", selectedHour, selectedMinute)
 
     val constants = Constants()
+    val habitLimit by remember { mutableIntStateOf(5) }
+    val timeText = String.format(Locale.US, "%02d:%02d", selectedHour, selectedMinute)
 
     Dialog(onDismissRequest = { onDismiss() }) {
         Card(

@@ -147,7 +147,7 @@ fun AppBarComposable(
                             )
                         }
                     }
-                    Spacer(Modifier.width(width = constants.spacingSmall))
+                    Spacer(Modifier.width(width = constants.spacingMedium))
                 }
             }
         },

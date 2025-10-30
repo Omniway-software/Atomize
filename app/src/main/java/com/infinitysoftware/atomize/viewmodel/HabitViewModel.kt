@@ -210,7 +210,6 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
 
     override fun onCleared() {
         super.onCleared()
-        // Cancel all observe jobs when ViewModel is cleared
         observeJobs.values.forEach { it.cancel() }
         observeJobs.clear()
     }

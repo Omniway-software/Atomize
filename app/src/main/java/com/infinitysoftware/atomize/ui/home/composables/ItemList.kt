@@ -128,7 +128,7 @@ fun ItemComposable(
             .fillMaxWidth()
             .height(constants.listItemHeight)
             .background(
-                color = if (canCheck) White else LightGray,
+                color = White,
                 shape = RoundedCornerShape(size = constants.listItemCornerRadius)
             )
             .padding(horizontal = constants.listItemHorizontalPadding)
@@ -152,9 +152,9 @@ fun ItemComposable(
                         checkedColor = PrimaryGreen,
                         uncheckedColor = PrimaryGreen,
                         checkmarkColor = White,
-                        disabledCheckedColor = LightGray,
-                        disabledUncheckedColor = LightGray,
-                        disabledIndeterminateColor = LightGray
+                        disabledCheckedColor = MediumGray,
+                        disabledUncheckedColor = MediumGray,
+                        disabledIndeterminateColor = MediumGray
                     )
                 )
                 Spacer(modifier = Modifier.width(constants.listItemCheckboxSpacing))
