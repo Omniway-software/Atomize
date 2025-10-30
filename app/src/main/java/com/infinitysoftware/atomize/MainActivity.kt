@@ -12,7 +12,6 @@ import com.infinitysoftware.atomize.ui.NavDrawer
 import com.infinitysoftware.atomize.ui.theme.AtomizeTheme
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -20,7 +19,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             AtomizeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    NavDrawer(modifier = Modifier.padding(innerPadding))
+                    NavDrawer(modifier = Modifier.padding(paddingValues = innerPadding))
                 }
             }
         }

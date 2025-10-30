@@ -9,6 +9,9 @@ plugins {
 
     // GMS
     id("com.google.gms.google-services")
+
+    // Crashlytics
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -68,6 +71,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+
     // Custom Implementations Section.
     // Firebase Related Section.
     implementation("com.google.android.gms:play-services-auth:21.2.0")
@@ -79,6 +83,7 @@ dependencies {
 
     // Firebase BOM.
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
+    implementation("com.google.firebase:firebase-crashlytics-ndk")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
 
