@@ -23,7 +23,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 1
-        versionName = "0.0.9"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -97,6 +97,9 @@ dependencies {
 
     // Firebase Analytics
     implementation("com.google.firebase:firebase-analytics")
+
+    // Firestore.
+    implementation("com.google.firebase:firebase-firestore")
     // End Of Firebase Related Section.
 
     // Kotlin Coroutines

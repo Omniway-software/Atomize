@@ -64,4 +64,10 @@ interface HabitDao {
 
     @Query("DELETE FROM habits WHERE text = :text")
     suspend fun deleteAllHabitsByText(text: String)
+
+    @Query("SELECT * FROM habits")
+    suspend fun getAllHabits(): List<HabitEntity>
+
+    @Query("SELECT * FROM habits WHERE date = :date AND text = :text")
+    suspend fun getHabitsByDateAndText(date: String, text: String): List<HabitEntity>
 }

@@ -3,6 +3,7 @@ package com.infinitysoftware.atomize.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.infinitysoftware.atomize.data.repository.FirestoreRepository
 import com.infinitysoftware.atomize.model.habit.CalendarState
 import com.infinitysoftware.atomize.model.habit.Habit
 import com.infinitysoftware.atomize.model.habit.HabitDatabase
@@ -18,13 +19,51 @@ import java.util.Calendar
 import java.util.concurrent.atomic.AtomicInteger
 
 class HabitViewModel(application: Application) : AndroidViewModel(application) {
+
     private val _habitIdCounter = AtomicInteger(0)
     private val _calendarState = MutableStateFlow(value = CalendarState())
     val calendarState: StateFlow<CalendarState> = _calendarState
 
-    private val dao = HabitDatabase.getDatabase(application).habitDao()
+    private val _syncStatus = MutableStateFlow<SyncStatus>(SyncStatus.Idle)
+    val syncStatus: StateFlow<SyncStatus> = _syncStatus
 
+    private val dao = HabitDatabase.getDatabase(application).habitDao()
+    private val firestoreRepository = FirestoreRepository.getInstance()
     private val observeJobs = mutableMapOf<String, Job>()
+
+    init {
+        syncWithFirestore()
+    }
+
+    fun syncWithFirestore() {
+        viewModelScope.launch {
+            _syncStatus.value = SyncStatus.Syncing
+
+            firestoreRepository.hasExistingData()
+                .onSuccess { hasData ->
+                    if (hasData) {
+                        firestoreRepository.fetchAllHabitsFromFirestore()
+                            .onSuccess { remoteHabits ->
+                                remoteHabits.forEach { habit ->
+                                    dao.insertHabit(habit)
+                                }
+                                _syncStatus.value = SyncStatus.Success
+                            }
+                            .onFailure {
+                                _syncStatus.value = SyncStatus.Error(it.message ?: "Sync failed")
+                            }
+                    } else {
+                        val localHabits = dao.getAllHabits()
+                        firestoreRepository.syncHabitsToFirestore(localHabits)
+                            .onSuccess { _syncStatus.value = SyncStatus.Success }
+                            .onFailure { _syncStatus.value = SyncStatus.Error(it.message ?: "Sync failed") }
+                    }
+                }
+                .onFailure {
+                    _syncStatus.value = SyncStatus.Error(it.message ?: "Sync failed")
+                }
+        }
+    }
 
     fun setHabitsForDate(date: String, habits: List<Habit>) {
         _calendarState.update { state ->
@@ -99,9 +138,11 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
                 if (!habit.days.contains(dayCode)) continue
                 val exists = dao.countHabitsByDateAndText(date, habit.text) > 0
                 if (exists) continue
-                dao.insertHabit(
-                    habit.copy(id = 0, isChecked = false, streak = 0).toEntity(date)
-                )
+
+                val newHabit = habit.copy(id = 0, isChecked = false, streak = 0).toEntity(date)
+                dao.insertHabit(newHabit)
+
+                firestoreRepository.syncHabitToFirestore(newHabit)
             }
         }
     }
@@ -110,6 +151,10 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             android.util.Log.d("HabitViewModel", "Increasing streak for habit $habitId")
             dao.increaseStreak(habitId)
+
+            dao.getHabitById(habitId)?.let { habit ->
+                firestoreRepository.syncHabitToFirestore(habit)
+            }
         }
     }
 
@@ -117,11 +162,21 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             android.util.Log.d("HabitViewModel", "Decreasing streak for habit $habitId")
             dao.decreaseStreak(habitId)
+
+            dao.getHabitById(habitId)?.let { habit ->
+                firestoreRepository.syncHabitToFirestore(habit)
+            }
         }
     }
 
     fun resetStrike(date: String, habitId: Int) {
-        viewModelScope.launch { dao.resetStreak(habitId) }
+        viewModelScope.launch {
+            dao.resetStreak(habitId)
+
+            dao.getHabitById(habitId)?.let { habit ->
+                firestoreRepository.syncHabitToFirestore(habit)
+            }
+        }
     }
 
     fun addHabitForDate(date: String, habitText: String) {
@@ -150,17 +205,23 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
             if (habitText.isBlank()) return@launch
             val count = dao.countHabitsForDate(date)
             if (count >= 5) return@launch
-            dao.insertHabit(
-                Habit(
-                    id = 0,
-                    text = habitText.trim(),
-                    isChecked = false,
-                    streak = 0,
-                    days = days,
-                    notifyTime = notifyTime,
-                    notificationsEnabled = notificationsEnabled
-                ).toEntity(date)
-            )
+
+            val newHabit = Habit(
+                id = 0,
+                text = habitText.trim(),
+                isChecked = false,
+                streak = 0,
+                days = days,
+                notifyTime = notifyTime,
+                notificationsEnabled = notificationsEnabled
+            ).toEntity(date)
+
+            dao.insertHabit(newHabit)
+
+            val insertedHabit = dao.getHabitsByDateAndText(date, habitText.trim()).firstOrNull()
+            insertedHabit?.let {
+                firestoreRepository.syncHabitToFirestore(it)
+            }
         }
     }
 
@@ -179,11 +240,21 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
                 notifyTime = notifyTime,
                 notificationsEnabled = notificationsEnabled
             )
+
+            dao.getHabitById(id)?.let { habit ->
+                firestoreRepository.syncHabitToFirestore(habit)
+            }
         }
     }
 
     fun toggleHabit(date: String, habitId: Int, isChecked: Boolean) {
-        viewModelScope.launch { dao.updateChecked(habitId, isChecked) }
+        viewModelScope.launch {
+            dao.updateChecked(habitId, isChecked)
+
+            dao.getHabitById(habitId)?.let { habit ->
+                firestoreRepository.syncHabitToFirestore(habit)
+            }
+        }
     }
 
     fun deleteHabit(habitId: Int) {
@@ -192,8 +263,10 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
 
             if (habit != null && habit.days.isNotEmpty()) {
                 dao.deleteAllHabitsByText(habit.text)
+                firestoreRepository.deleteHabitsByTextFromFirestore(habit.text)
             } else {
                 dao.deleteHabit(habitId)
+                firestoreRepository.deleteHabitFromFirestore(habitId)
             }
         }
     }
@@ -201,6 +274,7 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
     fun deleteAllHabitsByText(text: String) {
         viewModelScope.launch {
             dao.deleteAllHabitsByText(text)
+            firestoreRepository.deleteHabitsByTextFromFirestore(text)
         }
     }
 
@@ -213,4 +287,11 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
         observeJobs.values.forEach { it.cancel() }
         observeJobs.clear()
     }
+}
+
+sealed class SyncStatus {
+    object Idle : SyncStatus()
+    object Syncing : SyncStatus()
+    object Success : SyncStatus()
+    data class Error(val message: String) : SyncStatus()
 }

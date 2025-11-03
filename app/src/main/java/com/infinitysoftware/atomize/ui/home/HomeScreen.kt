@@ -31,6 +31,7 @@ import com.infinitysoftware.atomize.ui.home.composables.AppBarComposable
 import com.infinitysoftware.atomize.ui.home.composables.CalendarComposable
 import com.infinitysoftware.atomize.ui.home.composables.CreateNewHabitDialog
 import com.infinitysoftware.atomize.ui.home.composables.ListComposable
+import com.infinitysoftware.atomize.ui.home.composables.SyncIndicator
 import com.infinitysoftware.atomize.ui.settings.SettingsViewModel
 import com.infinitysoftware.atomize.ui.theme.MediumGray
 import com.infinitysoftware.atomize.ui.theme.PrimaryGreen
@@ -38,6 +39,7 @@ import com.infinitysoftware.atomize.ui.theme.White
 import com.infinitysoftware.atomize.viewmodel.AuthState
 import com.infinitysoftware.atomize.viewmodel.AuthViewModel
 import com.infinitysoftware.atomize.viewmodel.HabitViewModel
+import com.infinitysoftware.atomize.viewmodel.SyncStatus
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -119,6 +121,18 @@ fun HomeScreen(
         currentMonth = today.get(Calendar.MONTH)
         currentYear = today.get(Calendar.YEAR)
         selectedDate = todayString
+    }
+
+    val syncStatus by viewModel.syncStatus.collectAsState()
+
+    Column {
+        SyncIndicator(viewModel = viewModel)
+
+        if (syncStatus is SyncStatus.Error) {
+            Button(onClick = { viewModel.syncWithFirestore() }) {
+                Text("Try Again")
+            }
+        }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
