@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -24,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.infinitysoftware.atomize.R
@@ -125,16 +127,6 @@ fun HomeScreen(
 
     val syncStatus by viewModel.syncStatus.collectAsState()
 
-    Column {
-        SyncIndicator(viewModel = viewModel)
-
-        if (syncStatus is SyncStatus.Error) {
-            Button(onClick = { viewModel.syncWithFirestore() }) {
-                Text("Try Again")
-            }
-        }
-    }
-
     Column(modifier = Modifier.fillMaxSize()) {
         AppBarComposable(
             currentMonth = currentMonth,
@@ -148,6 +140,15 @@ fun HomeScreen(
             onAddHabitClick = onAddHabitClick,
             onResetToToday = onResetToToday
         )
+
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
+            SyncIndicator(viewModel = viewModel, modifier = Modifier.padding())
+            if (syncStatus is SyncStatus.Error) {
+                Button(onClick = { viewModel.syncWithFirestore() }) {
+                    Text("Try Again")
+                }
+            }
+        }
 
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             CalendarComposable(

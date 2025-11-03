@@ -33,7 +33,7 @@ class Constants {
     val calendarGridColumns = 7
 
     // List Item Dimensions
-    val listItemHeight = 115.dp
+    val listItemHeight = 100.dp
     val listItemCornerRadius = 8.dp
     val listItemHorizontalPadding = 8.dp
     val listItemSpacing = 8.dp

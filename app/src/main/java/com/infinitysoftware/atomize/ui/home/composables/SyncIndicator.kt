@@ -55,7 +55,14 @@ fun SyncIndicator(
     ) {
         Row(
             modifier = Modifier
-                .clip(RoundedCornerShape(20.dp))
+                .clip(
+                    RoundedCornerShape(
+                        topStart = 0.dp,
+                        topEnd = 20.dp,
+                        bottomEnd = 20.dp,
+                        bottomStart = 0.dp
+                    )
+                )
                 .background(
                     when (syncStatus) {
                         is SyncStatus.Syncing -> MaterialTheme.colorScheme.primaryContainer
