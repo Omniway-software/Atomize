@@ -7,10 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,7 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.infinitysoftware.atomize.R
@@ -33,7 +30,6 @@ import com.infinitysoftware.atomize.ui.home.composables.AppBarComposable
 import com.infinitysoftware.atomize.ui.home.composables.CalendarComposable
 import com.infinitysoftware.atomize.ui.home.composables.CreateNewHabitDialog
 import com.infinitysoftware.atomize.ui.home.composables.ListComposable
-import com.infinitysoftware.atomize.ui.home.composables.SyncIndicator
 import com.infinitysoftware.atomize.ui.settings.SettingsViewModel
 import com.infinitysoftware.atomize.ui.theme.MediumGray
 import com.infinitysoftware.atomize.ui.theme.PrimaryGreen
@@ -41,7 +37,6 @@ import com.infinitysoftware.atomize.ui.theme.White
 import com.infinitysoftware.atomize.viewmodel.AuthState
 import com.infinitysoftware.atomize.viewmodel.AuthViewModel
 import com.infinitysoftware.atomize.viewmodel.HabitViewModel
-import com.infinitysoftware.atomize.viewmodel.SyncStatus
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -125,8 +120,6 @@ fun HomeScreen(
         selectedDate = todayString
     }
 
-    val syncStatus by viewModel.syncStatus.collectAsState()
-
     Column(modifier = Modifier.fillMaxSize()) {
         AppBarComposable(
             currentMonth = currentMonth,
@@ -140,15 +133,6 @@ fun HomeScreen(
             onAddHabitClick = onAddHabitClick,
             onResetToToday = onResetToToday
         )
-
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-            SyncIndicator(viewModel = viewModel, modifier = Modifier.padding())
-            if (syncStatus is SyncStatus.Error) {
-                Button(onClick = { viewModel.syncWithFirestore() }) {
-                    Text("Try Again")
-                }
-            }
-        }
 
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             CalendarComposable(

@@ -1,4 +1,4 @@
-package com.infinitysoftware.atomize.model.firestore
+package com.infinitysoftware.atomize.model.firebase
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
