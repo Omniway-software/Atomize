@@ -31,9 +31,7 @@ import com.infinitysoftware.atomize.ui.home.composables.CalendarComposable
 import com.infinitysoftware.atomize.ui.home.composables.CreateNewHabitDialog
 import com.infinitysoftware.atomize.ui.home.composables.ListComposable
 import com.infinitysoftware.atomize.ui.settings.SettingsViewModel
-import com.infinitysoftware.atomize.ui.theme.MediumGray
-import com.infinitysoftware.atomize.ui.theme.PrimaryGreen
-import com.infinitysoftware.atomize.ui.theme.White
+import com.infinitysoftware.atomize.ui.theme.*
 import com.infinitysoftware.atomize.viewmodel.AuthState
 import com.infinitysoftware.atomize.viewmodel.AuthViewModel
 import com.infinitysoftware.atomize.viewmodel.HabitViewModel
