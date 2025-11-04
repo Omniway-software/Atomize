@@ -49,6 +49,7 @@
     <string name="log_in_button">Log-in</string>
     <string name="sign_up_button">Sign-up</string>
     <string name="do_not_have_an_account">Do not have an account?</string>
+    <string name="go_back_to_the">Go back to the</string>
 
     <!-- Content descriptions for accessibility -->
     <string name="cd_email">Email icon</string>

@@ -3,6 +3,7 @@ package com.infinitysoftware.atomize.ui.auth
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.navigation.NavController
 import androidx.compose.runtime.livedata.observeAsState
 import com.infinitysoftware.atomize.R
+import com.infinitysoftware.atomize.model.Screens
 import com.infinitysoftware.atomize.ui.theme.*
 import com.infinitysoftware.atomize.viewmodel.AuthState
 import com.infinitysoftware.atomize.viewmodel.AuthViewModel
@@ -164,6 +166,18 @@ fun SignupScreen(navController: NavController, authViewModel: AuthViewModel) {
                     colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen)
                 ) {
                     Text(stringResource(id = R.string.sign_up_button))
+                }
+
+                Spacer(modifier = Modifier.height(constants.authSpacerLargeDefaultWidth))
+
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Row {
+                        Text(stringResource(id = R.string.go_back_to_the))
+                        Text(text = " ${stringResource(id = R.string.log_in_button)}.", color = HyperLinkBlue,
+                            modifier = Modifier.clickable {
+                                navController.navigate(Screens.Login.screen)
+                            })
+                    }
                 }
             }
         }
