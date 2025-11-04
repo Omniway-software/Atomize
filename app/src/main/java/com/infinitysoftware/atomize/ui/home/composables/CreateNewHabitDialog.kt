@@ -49,11 +49,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.infinitysoftware.atomize.R
 import com.infinitysoftware.atomize.ui.home.Constants
 import com.infinitysoftware.atomize.ui.theme.*
+import com.infinitysoftware.atomize.viewmodel.AuthViewModel
 import com.infinitysoftware.atomize.viewmodel.HabitViewModel
 import java.util.Locale
 
 @Composable
-fun CreateNewHabitDialog(selectedDate: String, onDismiss: () -> Unit) {
+fun CreateNewHabitDialog(selectedDate: String, authViewModel: AuthViewModel, onDismiss: () -> Unit) {
     var text by remember { mutableStateOf(value = "") }
     val viewModel: HabitViewModel = viewModel()
     val calendarState by viewModel.calendarState.collectAsState()
@@ -75,7 +76,7 @@ fun CreateNewHabitDialog(selectedDate: String, onDismiss: () -> Unit) {
     var selectedMinute by remember { mutableIntStateOf(0) }
 
     val constants = Constants()
-    val habitLimit by remember { mutableIntStateOf(5) }
+    val habitLimit = authViewModel.getHabitLimit()
     val timeText = String.format(Locale.US, "%02d:%02d", selectedHour, selectedMinute)
 
     Dialog(onDismissRequest = { onDismiss() }) {
@@ -182,7 +183,8 @@ fun CreateNewHabitDialog(selectedDate: String, onDismiss: () -> Unit) {
                                 habitText = text,
                                 days = selected,
                                 notifyTime = time,
-                                notificationsEnabled = notificationsEnabled
+                                notificationsEnabled = notificationsEnabled,
+                                maxLimit = habitLimit
                             )
                             onDismiss()
                         }) {

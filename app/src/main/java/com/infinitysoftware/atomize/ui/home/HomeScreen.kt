@@ -77,7 +77,9 @@ fun HomeScreen(
 
     val currentCount = calendarState.habitsByDate[selectedDate]?.size ?: 0
     val isPastDate = selectedDate < todayString
-    val canCreateHabit = !isPastDate
+
+    val habitLimit = authViewModel.getHabitLimit()
+    val canCreateHabit = !isPastDate && currentCount < habitLimit
 
     val constants = Constants()
 
@@ -124,6 +126,7 @@ fun HomeScreen(
             currentYear = currentYear,
             currentCount = currentCount,
             canCreateHabit = canCreateHabit,
+            habitLimit = habitLimit,
             monthYearText = monthYearText,
             onMenuClick = onMenuClick,
             onMonthDecrement = onMonthDecrement,
@@ -152,6 +155,7 @@ fun HomeScreen(
                 if (showDialog && canCreateHabit) {
                     CreateNewHabitDialog(
                         selectedDate = selectedDate,
+                        authViewModel = authViewModel,
                         onDismiss = { showDialog = false }
                     )
                 }
@@ -191,6 +195,7 @@ fun HomeScreen(
                 if (showDialog && canCreateHabit) {
                     CreateNewHabitDialog(
                         selectedDate = selectedDate,
+                        authViewModel = authViewModel,
                         onDismiss = { showDialog = false }
                     )
                 }

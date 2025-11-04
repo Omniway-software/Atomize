@@ -66,6 +66,10 @@ class AuthViewModel(private val dao: HabitDao) : ViewModel() {
             _authState.value = AuthState.Unauthenticated
         }
     }
+
+    fun getHabitLimit(): Int {
+        return if (auth.currentUser != null) 10 else 5
+    }
 }
 
 sealed class AuthState {

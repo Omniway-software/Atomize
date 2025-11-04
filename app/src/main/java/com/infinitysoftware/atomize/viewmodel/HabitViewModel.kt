@@ -199,12 +199,13 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
         habitText: String,
         days: List<String> = emptyList(),
         notifyTime: String? = null,
-        notificationsEnabled: Boolean = false
+        notificationsEnabled: Boolean = false,
+        maxLimit: Int = 5
     ) {
         viewModelScope.launch {
             if (habitText.isBlank()) return@launch
             val count = dao.countHabitsForDate(date)
-            if (count >= 5) return@launch
+            if (count >= maxLimit) return@launch
 
             val newHabit = Habit(
                 id = 0,

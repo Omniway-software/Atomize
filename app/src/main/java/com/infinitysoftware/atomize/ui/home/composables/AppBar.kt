@@ -40,6 +40,7 @@ fun AppBarComposable(
     currentYear: Int,
     currentCount: Int,
     canCreateHabit: Boolean,
+    habitLimit: Int,
     monthYearText: String,
     onMenuClick: () -> Unit,
     onMonthDecrement: () -> Unit,
@@ -125,7 +126,7 @@ fun AppBarComposable(
                         modifier = Modifier
                             .size(constants.iconButtonSize)
                             .background(
-                                color = if (canCreateHabit && currentCount < constants.maxHabitCount)
+                                color = if (canCreateHabit && currentCount < habitLimit)
                                     White
                                 else
                                     White,
@@ -134,13 +135,13 @@ fun AppBarComposable(
                         contentAlignment = Alignment.Center
                     ) {
                         IconButton(
-                            onClick = { if (canCreateHabit && currentCount < constants.maxHabitCount) onAddHabitClick() },
-                            enabled = canCreateHabit
+                            onClick = { if (canCreateHabit && currentCount < habitLimit) onAddHabitClick() },
+                            enabled = canCreateHabit && currentCount < habitLimit
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = stringResource(R.string.cd_add),
-                                tint = if (canCreateHabit && currentCount < constants.maxHabitCount)
+                                tint = if (canCreateHabit && currentCount < habitLimit)
                                     PrimaryTextColor
                                 else
                                     MediumGray
