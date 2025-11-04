@@ -30,6 +30,7 @@ import com.infinitysoftware.atomize.ui.theme.PrimaryGreen
 import com.infinitysoftware.atomize.ui.theme.White
 import com.infinitysoftware.atomize.viewmodel.AuthViewModel
 import com.infinitysoftware.atomize.viewmodel.AuthState
+import com.infinitysoftware.atomize.viewmodel.AuthViewModelFactory
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,8 +46,8 @@ fun NavDrawer(modifier: Modifier = Modifier) {
     val database = remember { HabitDatabase.getDatabase(context) }
     val settingsDao = remember { database.settingsDao() }
     val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModelFactory(settingsDao))
-    val authViewModel: AuthViewModel = viewModel()
-
+    val habitDao = remember { database.habitDao() }
+    val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(habitDao))
     val authState by authViewModel.authState.observeAsState()
 
     val constants = Constants()

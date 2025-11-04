@@ -3,9 +3,12 @@ package com.infinitysoftware.atomize.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.infinitysoftware.atomize.model.habit.HabitDao
+import kotlinx.coroutines.launch
 
-class AuthViewModel: ViewModel() {
+class AuthViewModel(private val dao: HabitDao) : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
@@ -23,7 +26,6 @@ class AuthViewModel: ViewModel() {
     }
 
     fun login(email: String, password: String) {
-
         if (email.isEmpty() || password.isEmpty()) {
             _authState.value = AuthState.Error(message = "Empty Email Or Password")
             return
@@ -41,7 +43,6 @@ class AuthViewModel: ViewModel() {
     }
 
     fun signup(email: String, password: String) {
-
         if (email.isEmpty() || password.isEmpty()) {
             _authState.value = AuthState.Error(message = "Empty Email Or Password")
             return
@@ -59,8 +60,11 @@ class AuthViewModel: ViewModel() {
     }
 
     fun signout () {
-        auth.signOut()
-        _authState.value = AuthState.Unauthenticated
+        viewModelScope.launch {
+            dao.deleteAllHabits()
+            auth.signOut()
+            _authState.value = AuthState.Unauthenticated
+        }
     }
 }
 
