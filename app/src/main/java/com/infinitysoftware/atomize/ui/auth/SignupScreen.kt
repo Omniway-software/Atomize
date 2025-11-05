@@ -60,7 +60,8 @@ fun SignupScreen(navController: NavController, authViewModel: AuthViewModel) {
                     MaterialTheme.colorScheme.surfaceVariant.copy(alpha = constants.surfaceVariantAlpha)
                 )
             )
-        )) {
+        )
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

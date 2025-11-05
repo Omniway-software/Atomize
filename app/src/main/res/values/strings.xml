@@ -46,7 +46,7 @@
     <string name="sign_up_subtitle">Please fill the form to sign-up!</string>
     <string name="email_label">Email</string>
     <string name="password_label">Password</string>
-    <string name="password_confirmation_label">Password Confirmation</string>
+    <string name="password_confirmation_label">Confirm Password</string>
     <string name="passwords_not_match">Passwords do not match</string>
     <string name="log_in_button">Log-in</string>
     <string name="sign_up_button">Sign-up</string>
