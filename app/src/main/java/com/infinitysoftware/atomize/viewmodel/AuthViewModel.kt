@@ -70,6 +70,10 @@ class AuthViewModel(private val dao: HabitDao) : ViewModel() {
     fun getHabitLimit(): Int {
         return if (auth.currentUser != null) 10 else 5
     }
+
+    fun getCurrentUserEmail(): String? {
+        return auth.currentUser?.email
+    }
 }
 
 sealed class AuthState {

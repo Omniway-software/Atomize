@@ -1,4 +1,3 @@
-// Modified SignupScreen with password confirmation
 package com.infinitysoftware.atomize.ui.auth
 
 import android.widget.Toast
@@ -132,7 +131,7 @@ fun SignupScreen(navController: NavController, authViewModel: AuthViewModel) {
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
-                    label = { Text(text = "Confirm Password") },
+                    label = { Text(text = stringResource(id = R.string.password_confirmation_label)) },
                     singleLine = true,
                     shape = RoundedCornerShape(constants.authEntryFieldDefaultShape),
                     leadingIcon = {
@@ -154,7 +153,7 @@ fun SignupScreen(navController: NavController, authViewModel: AuthViewModel) {
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
                         if (password != confirmPassword) {
-                            Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.passwords_not_match), Toast.LENGTH_SHORT).show()
                         } else {
                             authViewModel.signup(email, password)
                             email = ""
@@ -173,7 +172,7 @@ fun SignupScreen(navController: NavController, authViewModel: AuthViewModel) {
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Row {
                         Text(stringResource(id = R.string.go_back_to_the))
-                        Text(text = " ${stringResource(id = R.string.log_in_button)}.", color = HyperLinkBlue,
+                        Text(text = " ${stringResource(id = R.string.log_in_button)}.", color = HyperLinkColor,
                             modifier = Modifier.clickable {
                                 navController.navigate(Screens.Login.screen)
                             })

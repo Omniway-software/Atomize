@@ -45,7 +45,7 @@ import androidx.navigation.NavController
 import com.infinitysoftware.atomize.R
 import com.infinitysoftware.atomize.model.Screens
 import com.infinitysoftware.atomize.ui.theme.Black
-import com.infinitysoftware.atomize.ui.theme.HyperLinkBlue
+import com.infinitysoftware.atomize.ui.theme.HyperLinkColor
 import com.infinitysoftware.atomize.ui.theme.PrimaryGreen
 import com.infinitysoftware.atomize.viewmodel.AuthState
 import com.infinitysoftware.atomize.viewmodel.AuthViewModel
@@ -174,7 +174,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Row {
                         Text(stringResource(id = R.string.do_not_have_an_account))
-                        Text(text = " ${stringResource(id = R.string.sign_up_button)}.", color = HyperLinkBlue,
+                        Text(text = " ${stringResource(id = R.string.sign_up_button)}.", color = HyperLinkColor,
                             modifier = Modifier.clickable {
                                 navController.navigate(Screens.Signup.screen)
                             })

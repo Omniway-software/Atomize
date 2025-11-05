@@ -20,7 +20,9 @@ val VeryLightGreen  = Color(color = 0xFFE8F5E8)
 val Orange = Color(color = 0xFFFF7043)
 val Red = Color(color = 0xFFE53935)
 
-val HyperLinkBlue = Color(color = 0xFF0066FF)
+val Blue = Color(color = 0xFF0000FF)
+
+val HyperLinkColor = PrimaryGreen
 
 // Neutral Colors.
 val LightGray = Color(color = 0xFFF5F5F5)

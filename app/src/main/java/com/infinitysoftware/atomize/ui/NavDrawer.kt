@@ -2,6 +2,7 @@ package com.infinitysoftware.atomize.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -13,6 +14,8 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
 import com.infinitysoftware.atomize.R
@@ -42,13 +45,13 @@ fun NavDrawer(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-
     val database = remember { HabitDatabase.getDatabase(context) }
     val settingsDao = remember { database.settingsDao() }
     val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModelFactory(settingsDao))
     val habitDao = remember { database.habitDao() }
     val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(habitDao))
     val authState by authViewModel.authState.observeAsState()
+    val email = authViewModel.getCurrentUserEmail()
 
     val constants = Constants()
 
@@ -63,21 +66,44 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                             modifier = Modifier
                                 .background(PrimaryGreen)
                                 .fillMaxWidth()
-                                .height(constants.navDrawerHeight),
-                            contentAlignment = Alignment.Center
+                                .height(constants.navDrawerHeight)
                         ) {
-                            Text(
-                                text = stringResource(id = R.string.app_name),
-                                style = MaterialTheme.typography.titleLarge,
-                                color = White
-                            )
+                            Column(
+                                modifier = Modifier.align(Alignment.BottomStart).padding(all = constants.navDrawerPadding),
+                                horizontalAlignment = Alignment.Start,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(constants.navDrawerAvatarSize)
+                                        .background(color = White, shape = CircleShape),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = email?.firstOrNull()?.uppercase() ?: "G",
+                                        fontSize = constants.navDrawerAvatarNameFirstCharacterSize,
+                                        fontWeight = FontWeight.Bold,
+                                        color = PrimaryGreen
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(constants.navDrawerPadding))
+
+                                Text(
+                                    text = email ?: "Guest Account",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = White,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
 
                         NavigationDrawerItem(
                             label = { Text(stringResource(R.string.nav_home), fontWeight = FontWeight.Bold) },
                             selected = currentRoute == Screens.Home.screen,
                             shape = RectangleShape,
-                            icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                            icon = { Icon(Icons.Default.Home, contentDescription = stringResource(R.string.nav_home)) },
                             onClick = {
                                 coroutineScope.launch { drawerState.close() }
                                 if (currentRoute != Screens.Home.screen) {
@@ -100,7 +126,7 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                             label = { Text(stringResource(R.string.nav_settings), fontWeight = FontWeight.Bold) },
                             selected = currentRoute == Screens.Settings.screen,
                             shape = RectangleShape,
-                            icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
+                            icon = { Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.nav_settings)) },
                             onClick = {
                                 coroutineScope.launch { drawerState.close() }
                                 if (currentRoute != Screens.Settings.screen) {
@@ -119,12 +145,11 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                             )
                         )
 
-                        // About
                         NavigationDrawerItem(
                             label = { Text(stringResource(R.string.nav_about), fontWeight = FontWeight.Bold) },
                             selected = currentRoute == Screens.About.screen,
                             shape = RectangleShape,
-                            icon = { Icon(Icons.Default.Info, contentDescription = "About") },
+                            icon = { Icon(Icons.Default.Info, contentDescription = stringResource(R.string.nav_about)) },
                             onClick = {
                                 coroutineScope.launch { drawerState.close() }
                                 if (currentRoute != Screens.About.screen) {
@@ -149,7 +174,7 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                                     label = { Text(stringResource(R.string.nav_logout), fontWeight = FontWeight.Bold) },
                                     selected = false,
                                     shape = RectangleShape,
-                                    icon = { Icon(Icons.Default.ExitToApp, contentDescription = "Log Out") },
+                                    icon = { Icon(Icons.Default.ExitToApp, contentDescription = stringResource(R.string.nav_logout)) },
                                     onClick = {
                                         coroutineScope.launch { drawerState.close() }
                                         authViewModel.signout()
@@ -174,7 +199,7 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                                     label = { Text(stringResource(R.string.nav_login), fontWeight = FontWeight.Bold) },
                                     selected = currentRoute == Screens.Login.screen,
                                     shape = RectangleShape,
-                                    icon = { Icon(Icons.Default.Login, contentDescription = "Log In") },
+                                    icon = { Icon(Icons.Default.Login, contentDescription = stringResource(R.string.nav_login)) },
                                     onClick = {
                                         coroutineScope.launch { drawerState.close() }
                                         if (currentRoute != Screens.Login.screen) {
