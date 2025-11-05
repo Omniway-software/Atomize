@@ -83,13 +83,13 @@ fun HomeScreen(
 
     val constants = Constants()
 
-    val authState = authViewModel.authState.observeAsState()
-
-    LaunchedEffect(authState.value) {
-        if (authState.value == AuthState.Unauthenticated) {
-            navController.navigate("login")
-        } else Unit
-    }
+//    val authState = authViewModel.authState.observeAsState()
+//
+//    LaunchedEffect(authState.value) {
+//        if (authState.value == AuthState.Unauthenticated) {
+//            navController.navigate("login")
+//        } else Unit
+//    }
 
     val onMonthDecrement: () -> Unit = {
         if (currentMonth == 0) {

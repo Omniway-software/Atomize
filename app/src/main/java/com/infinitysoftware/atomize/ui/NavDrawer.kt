@@ -51,7 +51,6 @@ fun NavDrawer(modifier: Modifier = Modifier) {
     val habitDao = remember { database.habitDao() }
     val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(habitDao))
     val authState by authViewModel.authState.observeAsState()
-    val email = authViewModel.getCurrentUserEmail()
 
     val constants = Constants()
 
@@ -80,7 +79,10 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        text = email?.firstOrNull()?.uppercase() ?: "G",
+                                        text = when (authState) {
+                                            is AuthState.Authenticated -> authViewModel.getCurrentUserEmail()?.firstOrNull()?.uppercase() ?: "G"
+                                            else -> "G"
+                                        },
                                         fontSize = constants.navDrawerAvatarNameFirstCharacterSize,
                                         fontWeight = FontWeight.Bold,
                                         color = PrimaryGreen
@@ -90,7 +92,10 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                                 Spacer(modifier = Modifier.height(constants.navDrawerPadding))
 
                                 Text(
-                                    text = email ?: "Guest Account",
+                                    text = when (authState) {
+                                        is AuthState.Authenticated -> authViewModel.getCurrentUserEmail() ?: "Guest Account"
+                                        else -> "Guest Account"
+                                    },
                                     style = MaterialTheme.typography.titleSmall,
                                     color = White,
                                     maxLines = 1,

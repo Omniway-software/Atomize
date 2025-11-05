@@ -88,6 +88,7 @@ fun CalendarComposable(
             3 -> ActivityLevel3
             4 -> ActivityLevel4
             5 -> ActivityLevel5
+//            if level is 10 -> Red
             else -> MaterialTheme.colorScheme.surface
         }
     }

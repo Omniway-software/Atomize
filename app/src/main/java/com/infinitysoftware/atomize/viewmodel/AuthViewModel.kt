@@ -35,6 +35,9 @@ class AuthViewModel(private val dao: HabitDao) : ViewModel() {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    viewModelScope.launch {
+                        dao.deleteAllHabits()
+                    }
                     _authState.value = AuthState.Authenticated
                 } else {
                     _authState.value = AuthState.Error(message = task.exception?.message?:"Error")
@@ -52,6 +55,9 @@ class AuthViewModel(private val dao: HabitDao) : ViewModel() {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    viewModelScope.launch {
+                        dao.deleteAllHabits()
+                    }
                     _authState.value = AuthState.Authenticated
                 } else {
                     _authState.value = AuthState.Error(message = task.exception?.message?:"Error")
