@@ -54,7 +54,7 @@ fun AboutScreen() {
         pushStringAnnotation("AUTHOR", stringResource(R.string.url_author))
         withStyle(SpanStyle(color = primaryGreen, textDecoration = TextDecoration.Underline, fontWeight = FontWeight.Bold)) {
             append(" ")
-            append(stringResource(R.string.about_lottie_license))
+            append(stringResource(R.string.about_author_name))
             append(" ")
         }
         pop()
@@ -62,7 +62,7 @@ fun AboutScreen() {
         pushStringAnnotation("LOTTIE", stringResource(R.string.url_lottie_files))
         withStyle(SpanStyle(color = primaryGreen, textDecoration = TextDecoration.Underline)) {
             append(" ")
-            append(stringResource(R.string.about_lottie_license))
+            append(stringResource(R.string.about_lottie_files))
         }
         pop()
         withStyle(SpanStyle(color = Black)) { append(stringResource(R.string.about_licensed_under)) }
