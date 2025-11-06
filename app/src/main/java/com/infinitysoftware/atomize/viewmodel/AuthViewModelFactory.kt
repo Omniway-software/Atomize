@@ -2,13 +2,12 @@ package com.infinitysoftware.atomize.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.infinitysoftware.atomize.model.habit.HabitDao
 
-class AuthViewModelFactory(private val dao: HabitDao) : ViewModelProvider.Factory {
+class AuthViewModelFactory : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return AuthViewModel(dao) as T
+            return AuthViewModel() as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

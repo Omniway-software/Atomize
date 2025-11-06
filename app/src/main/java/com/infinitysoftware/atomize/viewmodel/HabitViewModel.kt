@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.infinitysoftware.atomize.data.repository.FirestoreRepository
 import com.infinitysoftware.atomize.model.habit.CalendarState
 import com.infinitysoftware.atomize.model.habit.Habit
+import com.infinitysoftware.atomize.model.habit.HabitDao
 import com.infinitysoftware.atomize.model.habit.HabitDatabase
 import com.infinitysoftware.atomize.model.habit.toEntity
 import com.infinitysoftware.atomize.model.habit.toHabit
@@ -27,12 +28,25 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
     private val _syncStatus = MutableStateFlow<SyncStatus>(SyncStatus.Idle)
     val syncStatus: StateFlow<SyncStatus> = _syncStatus
 
-    private val dao = HabitDatabase.getDatabase(application).habitDao()
+    private val dao: HabitDao
+        get() = HabitDatabase.getDatabase(getApplication()).habitDao()
+    
     private val firestoreRepository = FirestoreRepository.getInstance()
     private val observeJobs = mutableMapOf<String, Job>()
 
     init {
         syncWithFirestore()
+    }
+
+    fun refreshDatabase() {
+        viewModelScope.launch {
+            observeJobs.values.forEach { it.cancel() }
+            observeJobs.clear()
+
+            _calendarState.value = CalendarState()
+
+            syncWithFirestore()
+        }
     }
 
     fun syncWithFirestore() {

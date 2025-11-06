@@ -34,6 +34,7 @@ import com.infinitysoftware.atomize.ui.theme.White
 import com.infinitysoftware.atomize.viewmodel.AuthViewModel
 import com.infinitysoftware.atomize.viewmodel.AuthState
 import com.infinitysoftware.atomize.viewmodel.AuthViewModelFactory
+import com.infinitysoftware.atomize.viewmodel.HabitViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,14 +46,19 @@ fun NavDrawer(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val database = remember { HabitDatabase.getDatabase(context) }
-    val settingsDao = remember { database.settingsDao() }
+    val database = HabitDatabase.getDatabase(context)
+    val settingsDao = database.settingsDao()
     val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModelFactory(settingsDao))
-    val habitDao = remember { database.habitDao() }
-    val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(habitDao))
+    val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory())
+    val habitViewModel: HabitViewModel = viewModel()
     val authState by authViewModel.authState.observeAsState()
 
     val constants = Constants()
+    LaunchedEffect(Unit) {
+        authViewModel.onUserChanged = {
+            habitViewModel.refreshDatabase()
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,

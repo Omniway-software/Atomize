@@ -5,13 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.infinitysoftware.atomize.model.habit.HabitDao
 import kotlinx.coroutines.launch
 
-class AuthViewModel(private val dao: HabitDao) : ViewModel() {
+class AuthViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
+
+    var onUserChanged: (() -> Unit)? = null
 
     init {
         checkAuthStatus()
@@ -35,10 +36,8 @@ class AuthViewModel(private val dao: HabitDao) : ViewModel() {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    viewModelScope.launch {
-                        dao.deleteAllHabits()
-                    }
                     _authState.value = AuthState.Authenticated
+                    onUserChanged?.invoke()
                 } else {
                     _authState.value = AuthState.Error(message = task.exception?.message?:"Error")
                 }
@@ -55,10 +54,8 @@ class AuthViewModel(private val dao: HabitDao) : ViewModel() {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    viewModelScope.launch {
-                        dao.deleteAllHabits()
-                    }
                     _authState.value = AuthState.Authenticated
+                    onUserChanged?.invoke()
                 } else {
                     _authState.value = AuthState.Error(message = task.exception?.message?:"Error")
                 }
@@ -67,9 +64,9 @@ class AuthViewModel(private val dao: HabitDao) : ViewModel() {
 
     fun signout () {
         viewModelScope.launch {
-            dao.deleteAllHabits()
             auth.signOut()
             _authState.value = AuthState.Unauthenticated
+            onUserChanged?.invoke()
         }
     }
 
@@ -79,6 +76,10 @@ class AuthViewModel(private val dao: HabitDao) : ViewModel() {
 
     fun getCurrentUserEmail(): String? {
         return auth.currentUser?.email
+    }
+    
+    fun getCurrentUserId(): String? {
+        return auth.currentUser?.uid
     }
 }
 
