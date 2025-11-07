@@ -31,7 +31,7 @@ class Constants {
     val animationProgress = 0F
 
     // Notifications
-    val notificationDefaultHour = 14
+    val notificationDefaultHour = 12
     val notificationDefaultMinute = 0
 
     // Minimums

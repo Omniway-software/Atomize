@@ -51,6 +51,7 @@ import com.infinitysoftware.atomize.ui.home.Constants
 import com.infinitysoftware.atomize.ui.theme.*
 import com.infinitysoftware.atomize.viewmodel.AuthViewModel
 import com.infinitysoftware.atomize.viewmodel.HabitViewModel
+import java.util.Calendar
 import java.util.Locale
 
 @Composable
@@ -72,8 +73,10 @@ fun CreateNewHabitDialog(selectedDate: String, authViewModel: AuthViewModel, onD
     )
     var notificationsEnabled by remember { mutableStateOf(true) }
     val selectedDays = remember { mutableStateListOf(false, false, false, false, false, false, false) }
-    var selectedHour by remember { mutableIntStateOf(14) }
-    var selectedMinute by remember { mutableIntStateOf(0) }
+
+    val calendar = Calendar.getInstance()
+    var selectedHour by remember { mutableIntStateOf(calendar.get(Calendar.HOUR_OF_DAY)) }
+    var selectedMinute by remember { mutableIntStateOf(calendar.get(Calendar.MINUTE)) }
 
     val constants = Constants()
     val habitLimit = authViewModel.getHabitLimit()
