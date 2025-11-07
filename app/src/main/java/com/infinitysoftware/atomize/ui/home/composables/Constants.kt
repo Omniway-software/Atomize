@@ -29,7 +29,7 @@ class Constants {
     val streakTextSize = 15.sp
     val streakIconSize = 48.dp
     val minActivityLevel = 0
-    val maxActivityLevel = 5
+    val maxActivityLevel = 10
     val calendarGridColumns = 7
 
     // List Item Dimensions
