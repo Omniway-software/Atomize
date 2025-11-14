@@ -83,7 +83,8 @@
 
     <!-- Toast Messages -->
     <string name="toast_max_habits">Maximum 5 Habits!</string>
-    <string name="user_not_authenticated">User not authenticated</string>>
+    <string name="empty_dialog_message">Dialog can\'t be empty!</string>
+    <string name="user_not_authenticated">User not authenticated!</string>
 
     <!-- About Fragment -->
     <string name="about_title">About</string>

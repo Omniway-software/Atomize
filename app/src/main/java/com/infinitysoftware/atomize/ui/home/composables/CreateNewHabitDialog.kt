@@ -24,7 +24,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.*
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -55,12 +55,19 @@ import java.util.Calendar
 import java.util.Locale
 
 @Composable
-fun CreateNewHabitDialog(selectedDate: String, authViewModel: AuthViewModel, onDismiss: () -> Unit) {
-    var text by remember { mutableStateOf(value = "") }
+fun CreateNewHabitDialog(
+    selectedDate: String,
+    authViewModel: AuthViewModel,
+    onDismiss: () -> Unit
+) {
+    var text by remember { mutableStateOf("") }
+    var showError by remember { mutableStateOf(false) }
+
     val viewModel: HabitViewModel = viewModel()
     val calendarState by viewModel.calendarState.collectAsState()
     val currentCount = calendarState.habitsByDate[selectedDate]?.size ?: 0
     val context = LocalContext.current
+
     val dayCodes = listOf("sun","mon","tue","wed","thu","fri","sat")
     val dayLabels = listOf(
         stringResource(R.string.day_sun),
@@ -71,6 +78,7 @@ fun CreateNewHabitDialog(selectedDate: String, authViewModel: AuthViewModel, onD
         stringResource(R.string.day_fri),
         stringResource(R.string.day_sat)
     )
+
     var notificationsEnabled by remember { mutableStateOf(true) }
     val selectedDays = remember { mutableStateListOf(false, false, false, false, false, false, false) }
 
@@ -90,9 +98,8 @@ fun CreateNewHabitDialog(selectedDate: String, authViewModel: AuthViewModel, onD
                 .fillMaxWidth()
                 .heightIn(min = constants.dialogMinHeight),
             elevation = CardDefaults.cardElevation(constants.dialogCardElevation),
-            colors = CardDefaults.cardColors(
-                containerColor = White
-            )) {
+            colors = CardDefaults.cardColors(containerColor = White)
+        ) {
             Column(
                 modifier = Modifier
                     .padding(all = constants.dialogInnerPadding)
@@ -104,14 +111,34 @@ fun CreateNewHabitDialog(selectedDate: String, authViewModel: AuthViewModel, onD
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.height(height = constants.spacerSmall))
+                Spacer(modifier = Modifier.height(constants.spacerSmall))
                 OutlinedTextField(
                     value = text,
-                    onValueChange = { text = it },
+                    onValueChange = {
+                        text = it
+                        if (showError && it.isNotBlank()) showError = false
+                    },
                     label = { Text(text = stringResource(R.string.dialog_enter_habit)) },
-                    singleLine = true
+                    singleLine = true,
+                    isError = showError,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = if (showError) Color.Red else PrimaryGreen,
+                        unfocusedBorderColor = if (showError) Color.Red else Color.Gray,
+                        focusedLabelColor = if (showError) Color.Red else PrimaryGreen,
+                        unfocusedLabelColor = if (showError) Color.Red else Color.Gray,
+                        cursorColor = PrimaryGreen,
+                    )
                 )
-                Spacer(modifier = Modifier.height(height = constants.spacerMedium))
+                Spacer(modifier = Modifier.height(constants.spacerSmall))
+                if (showError) {
+                    Text(
+                        text = stringResource(R.string.empty_dialog_message),
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(constants.spacerMedium))
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -120,21 +147,26 @@ fun CreateNewHabitDialog(selectedDate: String, authViewModel: AuthViewModel, onD
                         dayLabels.forEachIndexed { index, day ->
                             OutlinedButton(
                                 onClick = { selectedDays[index] = !selectedDays[index] },
-                                colors = ButtonDefaults.outlinedButtonColors(containerColor = if (selectedDays[index]) LightGreen else Color.Transparent),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    containerColor = if (selectedDays[index]) LightGreen else Color.Transparent
+                                ),
                                 shape = CircleShape,
                                 contentPadding = PaddingValues(all = 0.dp),
-                                modifier = Modifier.size(size = constants.dayButtonSize),
-                                border = BorderStroke(width = constants.dayButtonBorderWidth, color = MediumGray)
-                            ) { Text(text = day, color = if (selectedDays[index]) White else DarkGray) }
+                                modifier = Modifier.size(constants.dayButtonSize),
+                                border = BorderStroke(constants.dayButtonBorderWidth, MediumGray)
+                            ) { Text(day, color = if (selectedDays[index]) White else DarkGray) }
                         }
                     }
-                    Spacer(modifier = Modifier.height(height = constants.spacerMedium))
+                    Spacer(modifier = Modifier.height(constants.spacerMedium))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = stringResource(R.string.dialog_notifications), style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            text = stringResource(R.string.dialog_notifications),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Switch(
                                 checked = notificationsEnabled,
@@ -143,7 +175,8 @@ fun CreateNewHabitDialog(selectedDate: String, authViewModel: AuthViewModel, onD
                                     uncheckedThumbColor = PrimaryGreen,
                                     uncheckedTrackColor = White,
                                     uncheckedBorderColor = PrimaryGreen
-                                ))
+                                )
+                            )
                             Text(
                                 text = timeText,
                                 modifier = Modifier
@@ -164,7 +197,7 @@ fun CreateNewHabitDialog(selectedDate: String, authViewModel: AuthViewModel, onD
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(height = constants.spacerMedium))
+                    Spacer(modifier = Modifier.height(constants.spacerMedium))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
@@ -172,9 +205,12 @@ fun CreateNewHabitDialog(selectedDate: String, authViewModel: AuthViewModel, onD
                         TextButton(onClick = { onDismiss() }) {
                             Text(text = stringResource(R.string.dialog_dismiss))
                         }
-                        Spacer(modifier = Modifier.width(width = constants.spacerSmall))
+                        Spacer(modifier = Modifier.width(constants.spacerSmall))
                         Button(onClick = {
-                            if (text.isBlank()) return@Button
+                            if (text.isBlank()) {
+                                showError = true
+                                return@Button
+                            }
                             if (currentCount >= habitLimit) {
                                 Toast.makeText(context, context.getString(R.string.toast_max_habits), Toast.LENGTH_SHORT).show()
                                 return@Button
