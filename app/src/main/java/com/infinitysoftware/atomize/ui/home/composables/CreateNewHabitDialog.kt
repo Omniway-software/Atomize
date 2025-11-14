@@ -122,10 +122,10 @@ fun CreateNewHabitDialog(
                     singleLine = true,
                     isError = showError,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = if (showError) Color.Red else PrimaryGreen,
-                        unfocusedBorderColor = if (showError) Color.Red else Color.Gray,
-                        focusedLabelColor = if (showError) Color.Red else PrimaryGreen,
-                        unfocusedLabelColor = if (showError) Color.Red else Color.Gray,
+                        focusedBorderColor = if (showError) Orange else PrimaryGreen,
+                        unfocusedBorderColor = if (showError) Orange else Color.Gray,
+                        focusedLabelColor = if (showError) Orange else PrimaryGreen,
+                        unfocusedLabelColor = if (showError) Orange else Color.Gray,
                         cursorColor = PrimaryGreen,
                     )
                 )
@@ -133,7 +133,7 @@ fun CreateNewHabitDialog(
                 if (showError) {
                     Text(
                         text = stringResource(R.string.empty_dialog_message),
-                        color = Color.Red,
+                        color = Orange,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(top = 4.dp)
                     )
