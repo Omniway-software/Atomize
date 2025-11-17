@@ -137,6 +137,9 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
 
     fun ensureRecurringHabitsForDate(date: String) {
         viewModelScope.launch {
+            val todayString = getTodayString()
+            if (date < todayString) return@launch
+
             val parts = date.split("-")
             if (parts.size != 3) return@launch
             val calendar = Calendar.getInstance().apply {
@@ -155,7 +158,6 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
 
                 val newHabit = habit.copy(id = 0, isChecked = false, streak = 0).toEntity(date)
                 dao.insertHabit(newHabit)
-
                 firestoreRepository.syncHabitToFirestore(newHabit)
             }
         }
@@ -291,6 +293,14 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
             dao.deleteAllHabitsByText(text)
             firestoreRepository.deleteHabitsByTextFromFirestore(text)
         }
+    }
+
+    private fun getTodayString(): String {
+        val cal = Calendar.getInstance()
+        val y = cal.get(Calendar.YEAR)
+        val m = cal.get(Calendar.MONTH) + 1
+        val d = cal.get(Calendar.DAY_OF_MONTH)
+        return "%04d-%02d-%02d".format(y, m, d)
     }
 
     suspend fun getCompletedHabitsCountForDate(date: String): Int {
