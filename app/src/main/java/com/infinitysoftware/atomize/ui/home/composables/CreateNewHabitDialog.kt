@@ -80,7 +80,7 @@ fun CreateNewHabitDialog(
     )
 
     var notificationsEnabled by remember { mutableStateOf(true) }
-    val selectedDays = remember { mutableStateListOf(false, false, false, false, false, false, false) }
+    val selectedDays = remember { mutableStateListOf(true, true, true, true, true, true, true) }
 
     val calendar = Calendar.getInstance()
     var selectedHour by remember { mutableIntStateOf(calendar.get(Calendar.HOUR_OF_DAY)) }
