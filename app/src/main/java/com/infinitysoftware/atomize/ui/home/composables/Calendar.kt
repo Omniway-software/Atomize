@@ -72,29 +72,21 @@ fun CalendarComposable(
 
     val calendarState by viewModel.calendarState.collectAsState()
 
-    // KLJUČNA IZMENA: Ova logika sada kontinuirano osluškuje SVE datume u mesecu
     androidx.compose.runtime.LaunchedEffect(currentMonth, currentYear) {
-        // Lista svih datuma u trenutnom mesecu
         val datesInMonth = (1..daysInMonth).map { day ->
             "${currentYear}-${String.format(Locale.US, "%02d", currentMonth + 1)}-${String.format(Locale.US, "%02d", day)}"
         }
 
-        // Prvo osiguraj da postoje recurring habits za sve datume
         datesInMonth.forEach { dateString ->
             viewModel.ensureRecurringHabitsForDate(dateString)
         }
 
-        // Zatim postavi observers za SVE datume odjednom
         datesInMonth.forEach { dateString ->
             viewModel.observeHabitsForDate(dateString)
         }
     }
 
-    // DODATNO: Osluškuj promene u celom calendar state-u
-    // Kada se bilo šta promeni (npr. doda novi recurring habit),
-    // UI će se automatski ažurirati
     androidx.compose.runtime.LaunchedEffect(calendarState) {
-        // Ako se calendar state promeni, ponovo prođi kroz sve datume
         for (day in 1..daysInMonth) {
             val dateString = "${currentYear}-${String.format(Locale.US, "%02d", currentMonth + 1)}-${String.format(Locale.US, "%02d", day)}"
             viewModel.ensureRecurringHabitsForDate(dateString)
