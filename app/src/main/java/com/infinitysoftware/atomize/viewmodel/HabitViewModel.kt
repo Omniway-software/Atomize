@@ -16,11 +16,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.Calendar
 import java.util.concurrent.atomic.AtomicInteger
 
 class HabitViewModel(application: Application) : AndroidViewModel(application) {
-
     private val _habitIdCounter = AtomicInteger(0)
     private val _calendarState = MutableStateFlow(value = CalendarState())
     val calendarState: StateFlow<CalendarState> = _calendarState
@@ -30,9 +31,13 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
 
     private val dao: HabitDao
         get() = HabitDatabase.getDatabase(getApplication()).habitDao()
-    
+
     private val firestoreRepository = FirestoreRepository.getInstance()
     private val observeJobs = mutableMapOf<String, Job>()
+
+    // KLJUČNA IZMENA: Globalni mutex za SVE operacije kreiranja habita
+    private val habitCreationMutex = Mutex()
+    private val processedDates = mutableSetOf<String>()
 
     init {
         syncWithFirestore()
@@ -44,6 +49,10 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
             observeJobs.clear()
 
             _calendarState.value = CalendarState()
+
+            habitCreationMutex.withLock {
+                processedDates.clear()
+            }
 
             syncWithFirestore()
         }
@@ -137,28 +146,49 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
 
     fun ensureRecurringHabitsForDate(date: String) {
         viewModelScope.launch {
-            val todayString = getTodayString()
-            if (date < todayString) return@launch
+            // IZMENA: Koristi globalni mutex
+            habitCreationMutex.withLock {
+                if (processedDates.contains(date)) {
+                    return@launch
+                }
+                processedDates.add(date)
 
-            val parts = date.split("-")
-            if (parts.size != 3) return@launch
-            val calendar = Calendar.getInstance().apply {
-                set(Calendar.YEAR, parts[0].toIntOrNull() ?: return@launch)
-                set(Calendar.MONTH, (parts[1].toIntOrNull() ?: return@launch) - 1)
-                set(Calendar.DAY_OF_MONTH, parts[2].toIntOrNull() ?: return@launch)
-            }
-            val dayCode = toDayCode(calendar)
-            val templates = dao.getRecurringTemplates()
-            if (templates.isEmpty()) return@launch
-            for (template in templates) {
-                val habit = template.toHabit()
-                if (!habit.days.contains(dayCode)) continue
-                val exists = dao.countHabitsByDateAndText(date, habit.text) > 0
-                if (exists) continue
+                val todayString = getTodayString()
+                if (date < todayString) return@launch
 
-                val newHabit = habit.copy(id = 0, isChecked = false, streak = 0).toEntity(date)
-                dao.insertHabit(newHabit)
-                firestoreRepository.syncHabitToFirestore(newHabit)
+                val parts = date.split("-")
+                if (parts.size != 3) return@launch
+                val calendar = Calendar.getInstance().apply {
+                    set(Calendar.YEAR, parts[0].toIntOrNull() ?: return@launch)
+                    set(Calendar.MONTH, (parts[1].toIntOrNull() ?: return@launch) - 1)
+                    set(Calendar.DAY_OF_MONTH, parts[2].toIntOrNull() ?: return@launch)
+                }
+                val dayCode = toDayCode(calendar)
+                val templates = dao.getRecurringTemplates()
+                if (templates.isEmpty()) return@launch
+
+                for (template in templates) {
+                    val habit = template.toHabit()
+                    if (!habit.days.contains(dayCode)) continue
+
+                    // Provera je sada zaštićena globalnim mutex-om
+                    val exists = dao.countHabitsByDateAndText(date, habit.text) > 0
+
+                    if (!exists) {
+                        val newHabit = habit.copy(
+                            id = 0,
+                            isChecked = false,
+                            streak = 0
+                        ).toEntity(date)
+
+                        dao.insertHabit(newHabit)
+
+                        // Firestore sinhronizacija u pozadini (ne blokira UI)
+                        launch {
+                            firestoreRepository.syncHabitToFirestore(newHabit)
+                        }
+                    }
+                }
             }
         }
     }
@@ -168,8 +198,11 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
             android.util.Log.d("HabitViewModel", "Increasing streak for habit $habitId")
             dao.increaseStreak(habitId)
 
-            dao.getHabitById(habitId)?.let { habit ->
-                firestoreRepository.syncHabitToFirestore(habit)
+            // Firestore sinhronizacija u pozadini
+            launch {
+                dao.getHabitById(habitId)?.let { habit ->
+                    firestoreRepository.syncHabitToFirestore(habit)
+                }
             }
         }
     }
@@ -179,8 +212,10 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
             android.util.Log.d("HabitViewModel", "Decreasing streak for habit $habitId")
             dao.decreaseStreak(habitId)
 
-            dao.getHabitById(habitId)?.let { habit ->
-                firestoreRepository.syncHabitToFirestore(habit)
+            launch {
+                dao.getHabitById(habitId)?.let { habit ->
+                    firestoreRepository.syncHabitToFirestore(habit)
+                }
             }
         }
     }
@@ -189,8 +224,10 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             dao.resetStreak(habitId)
 
-            dao.getHabitById(habitId)?.let { habit ->
-                firestoreRepository.syncHabitToFirestore(habit)
+            launch {
+                dao.getHabitById(habitId)?.let { habit ->
+                    firestoreRepository.syncHabitToFirestore(habit)
+                }
             }
         }
     }
@@ -220,24 +257,39 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
     ) {
         viewModelScope.launch {
             if (habitText.isBlank()) return@launch
-            val count = dao.countHabitsForDate(date)
-            if (count >= maxLimit) return@launch
 
-            val newHabit = Habit(
-                id = 0,
-                text = habitText.trim(),
-                isChecked = false,
-                streak = 0,
-                days = days,
-                notifyTime = notifyTime,
-                notificationsEnabled = notificationsEnabled
-            ).toEntity(date)
+            // KLJUČNA IZMENA: Koristi globalni mutex za zaštitu od race condition-a
+            habitCreationMutex.withLock {
+                val count = dao.countHabitsForDate(date)
+                if (count >= maxLimit) return@launch
 
-            dao.insertHabit(newHabit)
+                // Dodatna provera za recurring habite
+                val exists = dao.countHabitsByDateAndText(date, habitText.trim()) > 0
+                if (exists) return@launch
 
-            val insertedHabit = dao.getHabitsByDateAndText(date, habitText.trim()).firstOrNull()
-            insertedHabit?.let {
-                firestoreRepository.syncHabitToFirestore(it)
+                val newHabit = Habit(
+                    id = 0,
+                    text = habitText.trim(),
+                    isChecked = false,
+                    streak = 0,
+                    days = days,
+                    notifyTime = notifyTime,
+                    notificationsEnabled = notificationsEnabled
+                ).toEntity(date)
+
+                dao.insertHabit(newHabit)
+
+                // IZMENA: Firestore sinhronizacija u pozadini - ne blokira UI
+                launch {
+                    val insertedHabit = dao.getHabitsByDateAndText(date, habitText.trim()).firstOrNull()
+                    insertedHabit?.let {
+                        firestoreRepository.syncHabitToFirestore(it)
+                    }
+                }
+
+                if (days.isNotEmpty()) {
+                    processedDates.clear()
+                }
             }
         }
     }
@@ -258,8 +310,10 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
                 notificationsEnabled = notificationsEnabled
             )
 
-            dao.getHabitById(id)?.let { habit ->
-                firestoreRepository.syncHabitToFirestore(habit)
+            launch {
+                dao.getHabitById(id)?.let { habit ->
+                    firestoreRepository.syncHabitToFirestore(habit)
+                }
             }
         }
     }
@@ -268,8 +322,10 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             dao.updateChecked(habitId, isChecked)
 
-            dao.getHabitById(habitId)?.let { habit ->
-                firestoreRepository.syncHabitToFirestore(habit)
+            launch {
+                dao.getHabitById(habitId)?.let { habit ->
+                    firestoreRepository.syncHabitToFirestore(habit)
+                }
             }
         }
     }
@@ -280,10 +336,20 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
 
             if (habit != null && habit.days.isNotEmpty()) {
                 dao.deleteAllHabitsByText(habit.text)
-                firestoreRepository.deleteHabitsByTextFromFirestore(habit.text)
+
+                launch {
+                    firestoreRepository.deleteHabitsByTextFromFirestore(habit.text)
+                }
+
+                habitCreationMutex.withLock {
+                    processedDates.clear()
+                }
             } else {
                 dao.deleteHabit(habitId)
-                firestoreRepository.deleteHabitFromFirestore(habitId)
+
+                launch {
+                    firestoreRepository.deleteHabitFromFirestore(habitId)
+                }
             }
         }
     }
@@ -291,7 +357,10 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
     fun deleteAllHabitsByText(text: String) {
         viewModelScope.launch {
             dao.deleteAllHabitsByText(text)
-            firestoreRepository.deleteHabitsByTextFromFirestore(text)
+
+            launch {
+                firestoreRepository.deleteHabitsByTextFromFirestore(text)
+            }
         }
     }
 
