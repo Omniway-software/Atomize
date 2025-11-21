@@ -73,4 +73,5 @@ interface HabitDao {
 
     @Query("DELETE FROM habits")
     suspend fun deleteAllHabits()
+
 }
