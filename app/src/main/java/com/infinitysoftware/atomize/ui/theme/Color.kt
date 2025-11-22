@@ -19,9 +19,7 @@ val VeryLightGreen  = Color(color = 0xFFE8F5E8)
 // Accent Colors.
 val Orange = Color(color = 0xFFFF7043)
 val Red = Color(color = 0xFFE53935)
-
 val Blue = Color(color = 0xFF0000FF)
-
 val HyperLinkColor = PrimaryGreen
 
 // Neutral Colors.
@@ -37,9 +35,14 @@ val SecondaryTextColor = Color(color = 0xFF757575)
 val DisabledTextColor = Color(color = 0xFFBDBDBD)
 
 // Activity Calendar Colors
-val ActivityLevel0 = Color(0xFFF1F8E9)
-val ActivityLevel1 = Color(0xFFC8E6C9)
-val ActivityLevel2 = Color(0xFFA5D6A7)
-val ActivityLevel3 = Color(0xFF81C784)
-val ActivityLevel4 = Color(0xFF66BB6A)
+val ActivityLevel0 = Color(color = 0xFFFFFFFF)
+val ActivityLevel1 = Color(color = 0xFFC8E6C9)
+val ActivityLevel2 = Color(color = 0xFFA5D6A7)
+val ActivityLevel3 = Color(color = 0xFF81C784)
+val ActivityLevel4 = Color(color = 0xFF66BB6A)
 val ActivityLevel5 = PrimaryGreen
+val ActivityLevel6 = PrimaryGreen
+val ActivityLevel7 = PrimaryGreen
+val ActivityLevel8 = PrimaryGreen
+val ActivityLevel9 = PrimaryGreen
+val ActivityLevel10 = Orange

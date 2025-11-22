@@ -74,4 +74,6 @@ interface HabitDao {
     @Query("DELETE FROM habits")
     suspend fun deleteAllHabits()
 
+    @Query("UPDATE habits SET streak = :newStreak WHERE id = :habitId")
+    suspend fun updateStreak(habitId: Int, newStreak: Int)
 }

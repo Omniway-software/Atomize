@@ -12,10 +12,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,8 +29,9 @@ import com.infinitysoftware.atomize.ui.home.composables.CalendarComposable
 import com.infinitysoftware.atomize.ui.home.composables.CreateNewHabitDialog
 import com.infinitysoftware.atomize.ui.home.composables.ListComposable
 import com.infinitysoftware.atomize.ui.settings.SettingsViewModel
-import com.infinitysoftware.atomize.ui.theme.*
-import com.infinitysoftware.atomize.viewmodel.AuthState
+import com.infinitysoftware.atomize.ui.theme.MediumGray
+import com.infinitysoftware.atomize.ui.theme.PrimaryGreen
+import com.infinitysoftware.atomize.ui.theme.White
 import com.infinitysoftware.atomize.viewmodel.AuthViewModel
 import com.infinitysoftware.atomize.viewmodel.HabitViewModel
 import java.text.SimpleDateFormat

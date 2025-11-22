@@ -25,6 +25,7 @@ import com.infinitysoftware.atomize.ui.about.AboutScreen
 import com.infinitysoftware.atomize.ui.auth.LoginScreen
 import com.infinitysoftware.atomize.ui.auth.SignupScreen
 import com.infinitysoftware.atomize.ui.home.HomeScreen
+import com.infinitysoftware.atomize.ui.paywall.PaywallScreen
 import com.infinitysoftware.atomize.ui.settings.SettingsScreen
 import com.infinitysoftware.atomize.ui.settings.SettingsViewModel
 import com.infinitysoftware.atomize.ui.settings.SettingsViewModelFactory
@@ -52,8 +53,8 @@ fun NavDrawer(modifier: Modifier = Modifier) {
     val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory())
     val habitViewModel: HabitViewModel = viewModel()
     val authState by authViewModel.authState.observeAsState()
-
     val constants = Constants()
+
     LaunchedEffect(Unit) {
         authViewModel.onUserChanged = {
             habitViewModel.refreshDatabase()
@@ -179,6 +180,29 @@ fun NavDrawer(modifier: Modifier = Modifier) {
                             )
                         )
 
+                        NavigationDrawerItem(
+                            label = { Text(stringResource(R.string.nav_paywall), fontWeight = FontWeight.Bold) },
+                            selected = currentRoute == Screens.Paywall.screen,
+                            shape = RectangleShape,
+                            icon = { Icon(Icons.Default.CreditCard, contentDescription = stringResource(R.string.nav_paywall)) },
+                            onClick = {
+                                coroutineScope.launch { drawerState.close() }
+                                if (currentRoute != Screens.Paywall.screen) {
+                                    navController.navigate(Screens.Paywall.screen) {
+                                        popUpTo(Screens.Home.screen)
+                                        launchSingleTop = true
+                                    }
+                                }
+                            },
+                            colors = NavigationDrawerItemDefaults.colors(
+                                selectedContainerColor = PrimaryGreen.copy(alpha = constants.navDrawerSelectedItemAlpha),
+                                selectedIconColor = PrimaryGreen,
+                                selectedTextColor = PrimaryGreen,
+                                unselectedIconColor = MediumGray,
+                                unselectedTextColor = MediumGray
+                            )
+                        )
+
                         when (authState) {
                             is AuthState.Authenticated -> {
                                 NavigationDrawerItem(
@@ -271,6 +295,7 @@ fun NavDrawer(modifier: Modifier = Modifier) {
             composable(route = Screens.About.screen) { AboutScreen() }
             composable(route = Screens.Login.screen) { LoginScreen(navController, authViewModel) }
             composable(route = Screens.Signup.screen) { SignupScreen(navController, authViewModel) }
+            composable(route = Screens.Paywall.screen) { PaywallScreen() }
         }
     }
 }

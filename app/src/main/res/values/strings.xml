@@ -5,6 +5,7 @@
     <string name="nav_home">Home</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_about">About</string>
+    <string name="nav_paywall">Upgrade</string>
     <string name="nav_login">Log In</string>
     <string name="nav_logout">Log Out</string>
     <string name="nav_signup">Sign Up</string>
@@ -28,18 +29,18 @@
     <string name="cd_next_month">Next Month</string>
     <string name="cd_add">Add</string>
 
-    <!-- Home Fragment -->
+    <!-- Home Screen -->
     <string name="home_create_new_habit">Create New Habit</string>
     <string name="home_no_habits">No Habits For This Day</string>
 
-    <!-- Settings Fragment -->
+    <!-- Settings Screen -->
     <string name="settings_title">Settings</string>
     <string name="settings_show_streak_title">Show Streak</string>
     <string name="settings_show_streak_description">Display streak counter on main screen</string>
     <string name="settings_animated_icon_title">Animated Fire Icon</string>
     <string name="settings_animated_icon_description">Enable animated streak icon</string>
 
-    <!-- Auth Fragment -->
+    <!-- Auth Screen -->
     <string name="log_in_title">Log-in</string>
     <string name="log_in_subtitle">Please fill the form to log-in!</string>
     <string name="sign_up_title">Sign-up</string>
@@ -53,11 +54,29 @@
     <string name="do_not_have_an_account">Do not have an account?</string>
     <string name="go_back_to_the">Go back to the</string>
 
+    <!--  Paywall Screen  -->
+    <string name="paywall_title">Paywall</string>
+    <string name="paywall_subtitle">Choice your perfect plan</string>
+    <string name="what_you_will_get">What You\'ll Get:</string>
+    <string name="numerous_habit_slots">20 Habit slots</string>
+    <string name="notifications">Notifications</string>
+    <string name="no_ads">No ads, forever</string>
+
+    <string name="monthly">Monthly</string>
+    <string name="yearly">Yearly</string>
+    <string name="lifetime">Lifetime</string>
+
+
+    <string name="monthly_price">4.99</string>
+    <string name="yearly_price">29.99</string>
+    <string name="lifetime_price">99.99</string>
+
+    <string name="tag_message">Best deal</string>
+
     <!-- Content descriptions for accessibility -->
     <string name="cd_email">Email icon</string>
     <string name="cd_password">Password icon</string>
     <string name="cd_toggle_password">Toggle password visibility</string>
-
 
     <!-- Habit Dialog -->
     <string name="dialog_create_title">Create New Habit</string>
@@ -86,7 +105,7 @@
     <string name="empty_dialog_message">Dialog can\'t be empty!</string>
     <string name="user_not_authenticated">User not authenticated!</string>
 
-    <!-- About Fragment -->
+    <!-- About Screen -->
     <string name="about_title">About</string>
     <string name="about_application_by">Application By:</string>
     <string name="about_developer_name">Dušan Rosić</string>

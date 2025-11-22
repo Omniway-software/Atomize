@@ -96,18 +96,18 @@ fun CalendarComposable(
     @Composable
     fun getActivityColor(level: Int): Color {
         return when (level) {
-            0 -> MaterialTheme.colorScheme.surface
+            0 -> ActivityLevel0
             1 -> ActivityLevel1
             2 -> ActivityLevel2
             3 -> ActivityLevel3
             4 -> ActivityLevel4
             5 -> ActivityLevel5
-            6 -> ActivityLevel5
-            7 -> ActivityLevel5
-            8 -> ActivityLevel5
-            9 -> ActivityLevel5
-            10 -> Orange
-            else -> MaterialTheme.colorScheme.surface
+            6 -> ActivityLevel6
+            7 -> ActivityLevel7
+            8 -> ActivityLevel8
+            9 -> ActivityLevel9
+            10 -> ActivityLevel10
+            else -> ActivityLevel0
         }
     }
 

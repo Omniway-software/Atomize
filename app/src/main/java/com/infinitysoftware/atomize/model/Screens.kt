@@ -6,4 +6,5 @@ sealed class Screens(val screen: String) {
     data object About: Screens(screen = "about")
     data object Login: Screens(screen = "login")
     data object Signup: Screens(screen = "signup")
+    data object Paywall: Screens(screen = "paywall")
 }

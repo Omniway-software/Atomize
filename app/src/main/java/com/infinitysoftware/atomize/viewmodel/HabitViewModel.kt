@@ -35,7 +35,6 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
     private val firestoreRepository = FirestoreRepository.getInstance()
     private val observeJobs = mutableMapOf<String, Job>()
 
-    // KLJUČNA IZMENA: Globalni mutex za SVE operacije kreiranja habita
     private val habitCreationMutex = Mutex()
     private val processedDates = mutableSetOf<String>()
 
@@ -146,7 +145,6 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
 
     fun ensureRecurringHabitsForDate(date: String) {
         viewModelScope.launch {
-            // IZMENA: Koristi globalni mutex
             habitCreationMutex.withLock {
                 if (processedDates.contains(date)) {
                     return@launch
@@ -171,7 +169,6 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
                     val habit = template.toHabit()
                     if (!habit.days.contains(dayCode)) continue
 
-                    // Provera je sada zaštićena globalnim mutex-om
                     val exists = dao.countHabitsByDateAndText(date, habit.text) > 0
 
                     if (!exists) {
@@ -183,7 +180,6 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
 
                         dao.insertHabit(newHabit)
 
-                        // Firestore sinhronizacija u pozadini (ne blokira UI)
                         launch {
                             firestoreRepository.syncHabitToFirestore(newHabit)
                         }
@@ -196,12 +192,15 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
     fun increaseStrike(date: String, habitId: Int) {
         viewModelScope.launch {
             android.util.Log.d("HabitViewModel", "Increasing streak for habit $habitId")
-            dao.increaseStreak(habitId)
 
-            // Firestore sinhronizacija u pozadini
+            val habit = dao.getHabitById(habitId)?.toHabit() ?: return@launch
+            val newStreak = calculateStreak(habit.text, date, habit.days)
+
+            dao.updateStreak(habitId, newStreak)
+
             launch {
-                dao.getHabitById(habitId)?.let { habit ->
-                    firestoreRepository.syncHabitToFirestore(habit)
+                dao.getHabitById(habitId)?.let { updatedHabit ->
+                    firestoreRepository.syncHabitToFirestore(updatedHabit)
                 }
             }
         }
@@ -210,14 +209,83 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
     fun decreaseStrike(date: String, habitId: Int) {
         viewModelScope.launch {
             android.util.Log.d("HabitViewModel", "Decreasing streak for habit $habitId")
-            dao.decreaseStreak(habitId)
+
+            val habit = dao.getHabitById(habitId)?.toHabit() ?: return@launch
+            val newStreak = calculateStreak(habit.text, date, habit.days, skipCurrentDay = true)
+
+            dao.updateStreak(habitId, newStreak)
 
             launch {
-                dao.getHabitById(habitId)?.let { habit ->
-                    firestoreRepository.syncHabitToFirestore(habit)
+                dao.getHabitById(habitId)?.let { updatedHabit ->
+                    firestoreRepository.syncHabitToFirestore(updatedHabit)
                 }
             }
         }
+    }
+
+    private suspend fun calculateStreak(
+        habitText: String,
+        currentDate: String,
+        scheduledDays: List<String>,
+        skipCurrentDay: Boolean = false
+    ): Int {
+        var streak = 0
+        val calendar = Calendar.getInstance()
+
+        val parts = currentDate.split("-")
+        if (parts.size != 3) return 0
+
+        calendar.apply {
+            set(Calendar.YEAR, parts[0].toInt())
+            set(Calendar.MONTH, parts[1].toInt() - 1)
+            set(Calendar.DAY_OF_MONTH, parts[2].toInt())
+        }
+
+        if (skipCurrentDay) {
+            calendar.add(Calendar.DAY_OF_YEAR, -1)
+        }
+
+        val isRecurring = scheduledDays.isNotEmpty()
+        var consecutiveSkips = 0
+        val maxConsecutiveSkips = if (isRecurring) 0 else 0
+
+        for (i in 0 until 365) {
+            val dateString = "%04d-%02d-%02d".format(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH) + 1,
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
+
+            val dayCode = toDayCode(calendar)
+
+            if (isRecurring) {
+                if (!scheduledDays.contains(dayCode)) {
+                    calendar.add(Calendar.DAY_OF_YEAR, -1)
+                    continue
+                }
+            }
+
+            val habitForDate = dao.getHabitsByDateAndText(dateString, habitText).firstOrNull()
+
+            if (habitForDate != null && habitForDate.isChecked) {
+                streak++
+            } else if (habitForDate != null && !habitForDate.isChecked) {
+                break
+            } else {
+                if (isRecurring) {
+                    break
+                } else {
+                    consecutiveSkips++
+                    if (consecutiveSkips > maxConsecutiveSkips) {
+                        break
+                    }
+                }
+            }
+
+            calendar.add(Calendar.DAY_OF_YEAR, -1)
+        }
+
+        return streak
     }
 
     fun resetStrike(date: String, habitId: Int) {
@@ -258,12 +326,10 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             if (habitText.isBlank()) return@launch
 
-            // KLJUČNA IZMENA: Koristi globalni mutex za zaštitu od race condition-a
             habitCreationMutex.withLock {
                 val count = dao.countHabitsForDate(date)
                 if (count >= maxLimit) return@launch
 
-                // Dodatna provera za recurring habite
                 val exists = dao.countHabitsByDateAndText(date, habitText.trim()) > 0
                 if (exists) return@launch
 
@@ -279,7 +345,6 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
 
                 dao.insertHabit(newHabit)
 
-                // IZMENA: Firestore sinhronizacija u pozadini - ne blokira UI
                 launch {
                     val insertedHabit = dao.getHabitsByDateAndText(date, habitText.trim()).firstOrNull()
                     insertedHabit?.let {
