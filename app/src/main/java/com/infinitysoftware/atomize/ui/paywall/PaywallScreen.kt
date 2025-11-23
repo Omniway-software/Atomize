@@ -87,30 +87,30 @@ fun PaywallScreen(
                 Spacer(Modifier.size(size = constants.minSpacerSize))
                 Text(text = stringResource(R.string.paywall_subtitle), style = MaterialTheme.typography.bodyLarge, color = White)
                 Spacer(Modifier.size(size = constants.minSpacerSize))
-                Text(text = stringResource(R.string.what_you_will_get), style = MaterialTheme.typography.titleLarge, color = White)
+                Text(text = stringResource(R.string.paywall_benefits_title), style = MaterialTheme.typography.titleLarge, color = White)
                 Spacer(Modifier.size(size = constants.minSpacerSize))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(imageVector = Icons.Default.Star, contentDescription = null, tint = White)
                     Spacer(Modifier.size(size = constants.minSpacerSize))
-                    Text(text = stringResource(R.string.numerous_habit_slots), style = MaterialTheme.typography.bodyLarge, color = White)
+                    Text(text = stringResource(R.string.paywall_benefit_slots), style = MaterialTheme.typography.bodyLarge, color = White)
                 }
                 Spacer(Modifier.size(size = constants.minSpacerSize))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(imageVector = Icons.Default.NotificationsActive, contentDescription = null, tint = White)
                     Spacer(Modifier.size(size = constants.minSpacerSize))
-                    Text(text = stringResource(R.string.notifications), style = MaterialTheme.typography.bodyLarge, color = White)
+                    Text(text = stringResource(R.string.paywall_benefit_notifications), style = MaterialTheme.typography.bodyLarge, color = White)
                 }
                 Spacer(Modifier.size(size = constants.minSpacerSize))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(imageVector = Icons.Default.Block, contentDescription = null, tint = White)
                     Spacer(Modifier.size(size = constants.minSpacerSize))
-                    Text(text = stringResource(R.string.no_ads), style = MaterialTheme.typography.bodyLarge, color = White)
+                    Text(text = stringResource(R.string.paywall_benefit_no_ads), style = MaterialTheme.typography.bodyLarge, color = White)
                 }
                 Spacer(Modifier.size(size = constants.defaultSpacerSize))
 
                 PaywallOptionCard(
-                    title = stringResource(R.string.monthly),
-                    price = stringResource(R.string.monthly_price),
+                    title = stringResource(R.string.paywall_plan_monthly),
+                    price = stringResource(R.string.paywall_price_monthly),
                     isSelected = selectedSubscription == SubscriptionType.Monthly
                 ) {
                     selectedSubscription = SubscriptionType.Monthly
@@ -120,8 +120,8 @@ fun PaywallScreen(
                 Spacer(Modifier.size(size = constants.defaultSpacerSize))
 
                 PaywallOptionCard(
-                    title = stringResource(R.string.yearly),
-                    price = stringResource(R.string.yearly_price),
+                    title = stringResource(R.string.paywall_plan_yearly),
+                    price = stringResource(R.string.paywall_price_yearly),
                     isSelected = selectedSubscription == SubscriptionType.Yearly
                 ) {
                     selectedSubscription = SubscriptionType.Yearly
@@ -131,9 +131,9 @@ fun PaywallScreen(
                 Spacer(Modifier.size(size = constants.defaultSpacerSize))
 
                 PaywallOptionCard(
-                    title = stringResource(R.string.lifetime),
-                    price = stringResource(R.string.lifetime_price),
-                    tag = stringResource(R.string.tag_message),
+                    title = stringResource(R.string.paywall_plan_lifetime),
+                    price = stringResource(R.string.paywall_price_lifetime),
+                    tag = stringResource(R.string.paywall_tag_best_deal),
                     isSelected = selectedSubscription == SubscriptionType.Lifetime
                 ) {
                     selectedSubscription = SubscriptionType.Lifetime

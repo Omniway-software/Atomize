@@ -20,11 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import com.infinitysoftware.atomize.ui.paywall.Constants
-import com.infinitysoftware.atomize.ui.theme.ActivityLevel2
-import com.infinitysoftware.atomize.ui.theme.ActivityLevel3
-import com.infinitysoftware.atomize.ui.theme.LightGray
-import com.infinitysoftware.atomize.ui.theme.Orange
-import com.infinitysoftware.atomize.ui.theme.White
+import com.infinitysoftware.atomize.ui.theme.*
 
 
 @Composable
@@ -36,7 +32,7 @@ fun PaywallOptionCard(
     onClick: () -> Unit
 ) {
     val borderColor = if (isSelected) Orange else LightGray
-    val backgroundColor = if (isSelected) ActivityLevel3 else ActivityLevel2
+    val backgroundColor = if (isSelected) ActivityLevel2 else ActivityLevel3
 
     val constants = Constants()
 
