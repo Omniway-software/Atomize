@@ -134,4 +134,7 @@ dependencies {
 
     // Lottie.
     implementation("com.airbnb.android:lottie-compose:6.1.0")
+
+    // Revenue Cat
+    implementation("com.revenuecat.purchases:purchases:9.1.0")
 }

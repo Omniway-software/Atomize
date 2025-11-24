@@ -192,7 +192,7 @@ fun CalendarComposable(
                             Text(
                                 day,
                                 textAlign = TextAlign.Center,
-                                color = if (isSunday) Orange else MaterialTheme.colorScheme.onSurface
+                                color = if (isSunday) Red else MaterialTheme.colorScheme.onSurface
                             )
                         }
                     } else {

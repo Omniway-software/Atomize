@@ -70,7 +70,13 @@ fun EditHabitDialog(
         stringResource(R.string.day_fri),
         stringResource(R.string.day_sat)
     )
-    val selectedDays = remember { mutableStateListOf<Boolean>().apply { addAll(dayCodes.map { habit.days.contains(it) }) } }
+    val selectedDays = remember(habit) {
+        mutableStateListOf<Boolean>().apply {
+            dayCodes.forEach { dayCode ->
+                add(habit.days.contains(dayCode))
+            }
+        }
+    }
     val context = LocalContext.current
 
     val initialHourMinute = remember(habit.notifyTime) {
