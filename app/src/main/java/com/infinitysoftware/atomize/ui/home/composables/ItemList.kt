@@ -108,10 +108,16 @@ fun ItemComposable(
     val currentStreak = habit.streak
 
     if (showEdit) {
-        EditHabitDialog(habit = habit, onDismiss = { showEdit = false }) { text, days, time, enabled ->
-            viewModel.updateHabitPersisted(habit.id, text, days, time, enabled)
-        }
+        EditHabitDialog(
+            habit = habit,
+            onDismiss = { showEdit = false },
+            viewModel = viewModel,
+            onConfirm = { text, days, time, enabled ->
+                viewModel.updateHabitPersisted(id = habit.id, text, days, notifyTime = time, notificationsEnabled = enabled)
+            }
+        )
     }
+
     if (showDelete) {
         DeleteHabitDialog(onDismiss = { showDelete = false }, habit = habit, onConfirm = { viewModel.deleteHabit(habit.id) })
     }

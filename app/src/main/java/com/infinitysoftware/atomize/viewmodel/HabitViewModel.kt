@@ -149,21 +149,29 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
                 if (processedDates.contains(date)) {
                     return@launch
                 }
-                processedDates.add(date)
 
                 val todayString = getTodayString()
-                if (date < todayString) return@launch
+                if (date < todayString) {
+                    processedDates.add(date)
+                    return@launch
+                }
 
                 val parts = date.split("-")
                 if (parts.size != 3) return@launch
+
                 val calendar = Calendar.getInstance().apply {
                     set(Calendar.YEAR, parts[0].toIntOrNull() ?: return@launch)
                     set(Calendar.MONTH, (parts[1].toIntOrNull() ?: return@launch) - 1)
                     set(Calendar.DAY_OF_MONTH, parts[2].toIntOrNull() ?: return@launch)
                 }
+
                 val dayCode = toDayCode(calendar)
                 val templates = dao.getRecurringTemplates()
-                if (templates.isEmpty()) return@launch
+
+                if (templates.isEmpty()) {
+                    processedDates.add(date)
+                    return@launch
+                }
 
                 for (template in templates) {
                     val habit = template.toHabit()
@@ -172,19 +180,25 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
                     val exists = dao.countHabitsByDateAndText(date, habit.text) > 0
 
                     if (!exists) {
-                        val newHabit = habit.copy(
-                            id = 0,
-                            isChecked = false,
-                            streak = 0
-                        ).toEntity(date)
+                        try {
+                            val newHabit = habit.copy(
+                                id = 0,
+                                isChecked = false,
+                                streak = 0
+                            ).toEntity(date)
 
-                        dao.insertHabit(newHabit)
+                            dao.insertHabit(newHabit)
 
-                        launch {
-                            firestoreRepository.syncHabitToFirestore(newHabit)
+                            launch {
+                                firestoreRepository.syncHabitToFirestore(newHabit)
+                            }
+                        } catch (e: Exception) {
+                            android.util.Log.e("HabitViewModel", "Error inserting habit for $date", e)
                         }
                     }
                 }
+
+                processedDates.add(date)
             }
         }
     }
@@ -333,27 +347,31 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
                 val exists = dao.countHabitsByDateAndText(date, habitText.trim()) > 0
                 if (exists) return@launch
 
-                val newHabit = Habit(
-                    id = 0,
-                    text = habitText.trim(),
-                    isChecked = false,
-                    streak = 0,
-                    days = days,
-                    notifyTime = notifyTime,
-                    notificationsEnabled = notificationsEnabled
-                ).toEntity(date)
+                try {
+                    val newHabit = Habit(
+                        id = 0,
+                        text = habitText.trim(),
+                        isChecked = false,
+                        streak = 0,
+                        days = days,
+                        notifyTime = notifyTime,
+                        notificationsEnabled = notificationsEnabled
+                    ).toEntity(date)
 
-                dao.insertHabit(newHabit)
+                    dao.insertHabit(newHabit)
 
-                launch {
-                    val insertedHabit = dao.getHabitsByDateAndText(date, habitText.trim()).firstOrNull()
-                    insertedHabit?.let {
-                        firestoreRepository.syncHabitToFirestore(it)
+                    launch {
+                        val insertedHabit = dao.getHabitsByDateAndText(date, habitText.trim()).firstOrNull()
+                        insertedHabit?.let {
+                            firestoreRepository.syncHabitToFirestore(it)
+                        }
                     }
-                }
 
-                if (days.isNotEmpty()) {
-                    processedDates.clear()
+                    if (days.isNotEmpty()) {
+                        processedDates.clear()
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("HabitViewModel", "Error creating habit", e)
                 }
             }
         }
@@ -367,17 +385,56 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
         notificationsEnabled: Boolean
     ) {
         viewModelScope.launch {
-            dao.updateHabit(
-                id = id,
-                text = text.trim(),
-                days = days.joinToString(","),
-                notifyTime = notifyTime,
-                notificationsEnabled = notificationsEnabled
-            )
+            val oldHabit = dao.getHabitById(id)?.toHabit() ?: return@launch
+            val oldText = oldHabit.text
 
-            launch {
-                dao.getHabitById(id)?.let { habit ->
-                    firestoreRepository.syncHabitToFirestore(habit)
+            if (oldHabit.days.isNotEmpty()) {
+                dao.deleteAllHabitsByText(oldText)
+
+                launch {
+                    firestoreRepository.deleteHabitsByTextFromFirestore(oldText)
+                }
+            }
+
+            if (days.isNotEmpty()) {
+                val newHabit = Habit(
+                    id = 0,
+                    text = text.trim(),
+                    isChecked = false,
+                    streak = 0,
+                    days = days,
+                    notifyTime = notifyTime,
+                    notificationsEnabled = notificationsEnabled
+                ).toEntity(getTodayString())
+
+                dao.insertHabit(newHabit)
+
+                launch {
+                    val insertedHabit = dao.getHabitsByDateAndText(getTodayString(), text.trim()).firstOrNull()
+                    insertedHabit?.let {
+                        firestoreRepository.syncHabitToFirestore(it)
+                    }
+                }
+
+                habitCreationMutex.withLock {
+                    processedDates.clear()
+                }
+
+                ensureRecurringHabitsForDate(getTodayString())
+
+            } else {
+                dao.updateHabit(
+                    id = id,
+                    text = text.trim(),
+                    days = days.joinToString(","),
+                    notifyTime = notifyTime,
+                    notificationsEnabled = notificationsEnabled
+                )
+
+                launch {
+                    dao.getHabitById(id)?.let { habit ->
+                        firestoreRepository.syncHabitToFirestore(habit)
+                    }
                 }
             }
         }

@@ -47,12 +47,14 @@ import com.infinitysoftware.atomize.R
 import com.infinitysoftware.atomize.model.habit.Habit
 import com.infinitysoftware.atomize.ui.home.Constants
 import com.infinitysoftware.atomize.ui.theme.*
+import com.infinitysoftware.atomize.viewmodel.HabitViewModel
 import java.util.Locale
 
 @Composable
 fun EditHabitDialog(
     habit: Habit,
     onDismiss: () -> Unit,
+    viewModel: HabitViewModel,
     onConfirm: (String, List<String>, String?, Boolean) -> Unit
 ) {
     var text by remember { mutableStateOf(habit.text) }
@@ -210,7 +212,15 @@ fun EditHabitDialog(
                         }
 
                         val selected = dayCodes.filterIndexed { index, _ -> selectedDays[index] }
-                        onConfirm(text, selected, if (notificationsEnabled) timeText else null, notificationsEnabled)
+                        
+                        viewModel.updateHabitPersisted(
+                            id = habit.id,
+                            text = text,
+                            days = selected,
+                            notifyTime = if (notificationsEnabled) timeText else null,
+                            notificationsEnabled = notificationsEnabled
+                        )
+
                         onDismiss()
                     }) {
                         Text(text = stringResource(R.string.dialog_save))
